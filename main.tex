@@ -447,7 +447,9 @@ E(\mathbf{w}) = \frac{1}{2}\sum_{n=1}^{N} \Big( \underbrace{y(\mathbf{x}_n, \mat
 
 We want the weights that minimize the loss, $\mathbf{w}^* =  \arg\min_{\mathbf{w}} E(\mathbf{w})$. We can find them using \textbf{gradient descent}.
 
-\subsection*{Gradient Descent (Batch)}
+\section*{Gradient Descent}
+
+\subsection*{Batch Gradient Descent}
 \textbf{Batch} = every step uses \emph{all} $N$ training examples to compute the gradient.
 
 Start with some weights $\mathbf{w}$, usually all zeros. Then repeat:
@@ -626,7 +628,7 @@ w_d := w_d - \eta \,
   \item \textbf{Mini-batch}: use a small batch of $B$ examples per step (e.g.\ 100). $B = 1$ is SGD, $B = N$ is batch GD.
 \end{itemize}
 
-\subsection*{Normal Equation (Closed Form)}
+\section*{Normal Equation (Closed Form)}
 For linear regression we can skip gradient descent and \textbf{jump straight to the minimum}: the bottom of the bowl has zero slope, so set the gradient to $\mathbf{0}$ and solve.
 
 {\centering
@@ -700,227 +702,223 @@ Rearranging gives the \textbf{normal equation} $\mathbb{X}^\top\mathbb{X}\,\math
   \item \textbf{Geometric view.} $\mathbb{X}\mathbf{w}^*$ is the closest point to $\mathbf{t}$ reachable by the columns of $\mathbb{X}$, so the error is perpendicular to every column: $\mathbb{X}^\top(\mathbb{X}\mathbf{w}^* - \mathbf{t}) = \mathbf{0}$.
 \end{itemize}
 
-
 \section*{Principal Component Analysis (PCA)}
 
-\subsection*{Idea}
-\textbf{Unsupervised} (no labels). Take data $\mathbf{x}_1, \dots, \mathbf{x}_N \in \mathbb{R}^D$ and squeeze it into $k \ll D$ dimensions while losing as little information as possible.
+\subsection*{What PCA Does}
+\textbf{Goal:} reduce unlabeled data from $D$ to $k \ll D$ dimensions (e.g.\ 10{,}000 $\rightarrow$ 100) while losing as little information as possible.
 \begin{itemize}
-  \item Small example: 2D $\rightarrow$ 1D. Typical: 10{,}000 $\rightarrow$ 100. Lecture demo: 441 legislators $\times$ 41 votes $\rightarrow$ 2D, and the 1st coordinate matched party for 98\% of the House (no labels given).
-  \item Find the direction the data is most spread out along, then describe each point by \emph{where it lands} on that direction.
-  \item \textbf{Uses:} visualization (plot in 2D/3D), compression, and preprocessing for other models (HW2: TF-IDF $\rightarrow$ SVD $\rightarrow$ GMM).
-  \item In CS189, PCA is \textbf{not probabilistic}: it's linear algebra and optimization (no $p(\mathbf{x})$, no likelihood).
+  \item Find the direction the data is most spread out along, then describe each point by where it lands on that direction.
+  \item \textbf{Uses:} visualization (2D/3D plots), compression, and preprocessing for other models.
 \end{itemize}
 
-\textbf{Running example} (practice midterm): 6 points $(0,0),(0,1),(1,0),(1,2),(2,1),(2,2)$, shown centered.
+\subsection*{PCA Step by Step}
+\textbf{Running example} (2D $\rightarrow$ 1D): 6 points $(0,0),(0,1),(1,0),(1,2),(2,1),(2,2)$.
 
-{\centering
-\begin{tikzpicture}
-\begin{axis}[name=good,
-    width=0.42\linewidth, height=5.2cm,
-    xmin=-1.8, xmax=1.8, ymin=-1.6, ymax=1.6, axis equal image,
-    enlargelimits=false, grid=major, grid style={gray!30}, major tick length=0pt,
-    xtick={-1,0,1}, ytick={-1,0,1}, tick label style={font=\scriptsize},
-    title={\small\textbf{Good direction} $\mathbf{u}_1$}, title style={text=green!50!black, yshift=-4pt},
-    xlabel={\scriptsize points spread out on the line}, label style={font=\scriptsize}]
-\addplot[green!50!black, thick, domain=-1.6:1.6, samples=2] {x};
-\draw[orange, dashed] (axis cs:-1,0) -- (axis cs:-0.5,-0.5);
-\draw[orange, dashed] (axis cs:0,-1) -- (axis cs:-0.5,-0.5);
-\draw[orange, dashed] (axis cs:0,1) -- (axis cs:0.5,0.5);
-\draw[orange, dashed] (axis cs:1,0) -- (axis cs:0.5,0.5);
-\addplot[only marks, mark=*, green!50!black, mark size=2pt] coordinates {(-1,-1) (-0.5,-0.5) (0.5,0.5) (1,1)};
-\addplot[only marks, mark=*, blue, mark size=1.8pt] coordinates {(-1,-1) (-1,0) (0,-1) (0,1) (1,0) (1,1)};
-\end{axis}
-\begin{axis}[at={(good.east)}, anchor=west, xshift=0.8cm,
-    width=0.42\linewidth, height=5.2cm,
-    xmin=-1.8, xmax=1.8, ymin=-1.6, ymax=1.6, axis equal image,
-    enlargelimits=false, grid=major, grid style={gray!30}, major tick length=0pt,
-    xtick={-1,0,1}, ytick={-1,0,1}, tick label style={font=\scriptsize},
-    title={\small\textbf{Bad direction} $\mathbf{u}_2$}, title style={text=red!80!black, yshift=-4pt},
-    xlabel={\scriptsize points bunch up, long error lines}, label style={font=\scriptsize}]
-\addplot[red!80!black, thick, domain=-1.6:1.6, samples=2] {-x};
-\draw[orange, dashed] (axis cs:-1,-1) -- (axis cs:0,0);
-\draw[orange, dashed] (axis cs:1,1) -- (axis cs:0,0);
-\draw[orange, dashed] (axis cs:-1,0) -- (axis cs:-0.5,0.5);
-\draw[orange, dashed] (axis cs:0,1) -- (axis cs:-0.5,0.5);
-\draw[orange, dashed] (axis cs:0,-1) -- (axis cs:0.5,-0.5);
-\draw[orange, dashed] (axis cs:1,0) -- (axis cs:0.5,-0.5);
-\addplot[only marks, mark=*, red!80!black, mark size=2pt] coordinates {(0,0) (-0.5,0.5) (0.5,-0.5)};
-\addplot[only marks, mark=*, blue, mark size=1.8pt] coordinates {(-1,-1) (-1,0) (0,-1) (0,1) (1,0) (1,1)};
-\end{axis}
-\end{tikzpicture}
-\par}
-
-Blue = data, dashed orange = how far each point is from the line (thrown away), colored dots = where each point lands.
-
-\subsection*{Preprocessing}
-\begin{itemize}
-  \item \textbf{Center (required):} subtract the mean $\bar{\mathbf{x}} = \frac1N\sum_n \mathbf{x}_n$ so the new mean is $\mathbf{0}$. PCA lines/planes pass through the origin, but the best-fitting one passes through the \emph{mean}. Without centering, PCA finds the direction toward the mean, not the spread.
-  \item \textbf{Standardize (when units differ):} also divide each feature by its standard deviation, so each has mean 0 and \emph{variance 1} (not 0). Otherwise e.g.\ income (\$) beats height (cm) just because its numbers are bigger.
-  \item Exams: usually just center, or the data is given already standardized.
-\end{itemize}
-
-\subsection*{Two Equivalent Goals}
-Pick a unit vector $\mathbf{u}$. Each centered point splits into a piece \emph{along} $\mathbf{u}$ (kept) and a piece \emph{perpendicular} to $\mathbf{u}$ (lost):
-
-{\centering
-\begin{tikzpicture}
-\begin{axis}[
-    width=0.5\linewidth, height=5cm, clip=false,
-    xmin=-0.4, xmax=1.5, ymin=-0.4, ymax=1.2, axis equal image,
-    enlargelimits=false, grid=major, grid style={gray!30}, major tick length=0pt,
-    xtick={0,1}, ytick={0,1}, tick label style={font=\scriptsize}]
-\addplot[green!50!black, domain=-0.3:1.1, samples=2] {x};
-\draw[-latex, very thick, blue] (axis cs:0,0) -- (axis cs:1,0);
-\draw[-latex, very thick, green!50!black] (axis cs:0,0) -- (axis cs:0.5,0.5);
-\draw[-latex, thick, orange, dashed] (axis cs:0.5,0.5) -- (axis cs:1,0);
-\draw (axis cs:0.44,0.44) -- (axis cs:0.5,0.38) -- (axis cs:0.56,0.44);
-\node[font=\scriptsize, blue, anchor=north] at (axis cs:0.55,-0.02) {$\mathbf{x} = (1,0)$};
-\node[font=\scriptsize, green!50!black, anchor=east] at (axis cs:-0.45,0.5) {kept: $\tilde{\mathbf{x}} = (\frac12,\frac12)$};
-\node[font=\scriptsize, orange!80!black, anchor=west] at (axis cs:1.55,0.25) {lost: $\mathbf{e} = (\frac12,-\frac12)$};
-\end{axis}
-\end{tikzpicture}
-\par}
-
-By Pythagoras, $\|\mathbf{x}\|^2 = (\text{kept})^2 + (\text{lost})^2$, and the left side is fixed. So these are the \textbf{same} goal:
-\begin{itemize}
-  \item \textbf{Maximize the variance} of the projections (spread of the colored dots), or
-  \item \textbf{Minimize the reconstruction error} $\frac1N\sum_n \|\mathbf{x}_n - \hat{\mathbf{x}}_n\|^2$ (total squared length of the dashed lines).
-\end{itemize}
-Example: good direction keeps 6 and loses 2; bad direction keeps 2 and loses 6. Total is always 8.
-
-\subsection*{The Math: Why Eigenvectors}
-\textbf{Projection.} If $\|\mathbf{u}\| = 1$, the position of $\mathbf{x}$ along $\mathbf{u}$ is the dot product $z = \mathbf{x}^\top\mathbf{u}$, and the landing spot is $\tilde{\mathbf{x}} = z\,\mathbf{u}$.
-\begin{itemize}
-  \item Need $\|\mathbf{u}\|=1$: $\mathbf{x}^\top\mathbf{u} = \|\mathbf{x}\|\|\mathbf{u}\|\cos\theta$, which is the true length only if $\|\mathbf{u}\|=1$. Without it, making $\mathbf{u}$ longer would increase the variance forever, so there'd be no max.
-  \item $\mathbf{u}$ only picks a \emph{direction}. The line itself is infinite: every $c\,\mathbf{u}$. $\mathbf{u}$ and $-\mathbf{u}$ are the same line.
-\end{itemize}
-
-\textbf{Objective.} With centered $X$ (rows $\mathbf{x}_n^\top$) and covariance $\Sigma = \frac1N X^\top X$:
+\textbf{Step 1: Center.} Subtract the mean from every point (the best line passes through the mean):
 \[
-\max_{\|\mathbf{u}\|=1} \; \frac1N\sum_{n=1}^N (\mathbf{x}_n^\top\mathbf{u})^2 \;=\; \max_{\|\mathbf{u}\|=1}\; \mathbf{u}^\top \Sigma\, \mathbf{u}
+\bar{\mathbf{x}} = \frac1N\sum_{n=1}^N \mathbf{x}_n = (1,1),
+\qquad
+\mathbf{x}_n \leftarrow \mathbf{x}_n - \bar{\mathbf{x}}
 \]
 
-\textbf{Solve} (Lagrangian, set the gradient to zero):
+\textbf{Step 2: Find the eigenvectors.} Stack the centered points as rows of $X$. The eigenvectors of $X^\top X$ are the cloud's long and short axes:
 \[
-\nabla_{\mathbf{u}}\big[\mathbf{u}^\top\Sigma\mathbf{u} - \lambda(\mathbf{u}^\top\mathbf{u} - 1)\big] = 2\Sigma\mathbf{u} - 2\lambda\mathbf{u} = \mathbf{0}
-\;\;\Longrightarrow\;\; \Sigma\mathbf{u} = \lambda\mathbf{u}
+X^\top X = \begin{bmatrix}4&2\\2&4\end{bmatrix},
+\qquad
+\mathbf{u}_1 = \tfrac{1}{\sqrt2}(1,1),\; \lambda_1 = 6,
+\qquad
+\mathbf{u}_2 = \tfrac{1}{\sqrt2}(1,-1),\; \lambda_2 = 2
 \]
-So the best $\mathbf{u}$ is an \textbf{eigenvector}. Plugging back in: $\mathbf{u}^\top\Sigma\mathbf{u} = \lambda\,\mathbf{u}^\top\mathbf{u} = \lambda$, so the \textbf{variance along an eigenvector is its eigenvalue}. Pick the largest one.
+
+\textbf{Step 3: Keep the top $k$.} Each eigenvalue is the spread along its eigenvector, so keep the largest. Here $k = 1$: keep $\mathbf{u}_1$, drop $\mathbf{u}_2$.
+
+\textbf{Step 4: Project.} Each point becomes how far along $\mathbf{u}_1$ it lands:
+\[
+z_n = \mathbf{x}_n^\top \mathbf{u}_1,
+\qquad \text{e.g.\ } (1,1) \rightarrow \tfrac{1+1}{\sqrt2} = \sqrt2
+\]
+
+\textbf{Step 5 (if asked): Reconstruct.} Start at the mean and go $z_n$ along $\mathbf{u}_1$. The gap $\mathbf{x}_n - \hat{\mathbf{x}}_n$ is the error:
+\[
+\hat{\mathbf{x}}_n = \bar{\mathbf{x}} + z_n\,\mathbf{u}_1
+\]
 
 {\centering
 \begin{tikzpicture}
-\begin{axis}[
-    width=0.5\linewidth, height=3.8cm,
-    xmin=0, xmax=180, ymin=0, ymax=7.5, enlargelimits=false, clip=false,
+\begin{axis}[name=a,
+    scale only axis, width=3.3cm, height=3.3cm,
+    xmin=-1.6, xmax=2.6, ymin=-1.6, ymax=2.6, enlargelimits=false,
     grid=major, grid style={gray!30}, major tick length=0pt,
-    xtick={0,45,90,135,180}, ytick={0,2,4,6},
-    xlabel={angle of $\mathbf{u}$ (degrees)}, ylabel={$\mathbf{u}^\top X^\top X\,\mathbf{u}$},
-    tick label style={font=\scriptsize}, label style={font=\scriptsize}]
-\addplot[thick, blue, domain=0:180, samples=90] {4 + 2*sin(2*x)};
-\addplot[only marks, mark=*, green!50!black, mark size=2pt] coordinates {(45,6)};
-\addplot[only marks, mark=*, red!80!black, mark size=2pt] coordinates {(135,2)};
-\node[font=\scriptsize, green!50!black, anchor=south] at (axis cs:45,6.1) {$\lambda_1 = 6$};
-\node[font=\scriptsize, red!80!black, anchor=north] at (axis cs:135,1.9) {$\lambda_2 = 2$};
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{(a) Data}}, title style={yshift=-4pt},
+    xlabel={\scriptsize red $\times$ = mean}, label style={font=\scriptsize}]
+\addplot[only marks, mark=*, blue, mark size=1.5pt] coordinates {(0,0) (0,1) (1,0) (1,2) (2,1) (2,2)};
+\addplot[only marks, mark=x, red, mark size=4pt, ultra thick] coordinates {(1,1)};
+\end{axis}
+\begin{axis}[name=b, at={(a.east)}, anchor=west, xshift=0.6cm,
+    scale only axis, width=3.3cm, height=3.3cm,
+    xmin=-1.6, xmax=2.6, ymin=-1.6, ymax=2.6, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{(b) Center}}, title style={yshift=-4pt},
+    xlabel={\scriptsize mean $\rightarrow$ origin}, label style={font=\scriptsize}]
+\addplot[only marks, mark=*, blue!25, mark size=1.3pt] coordinates {(0,0) (0,1) (1,0) (1,2) (2,1) (2,2)};
+\addplot[gray, -latex] coordinates {(2,2) (1.12,1.12)};
+\addplot[gray, -latex] coordinates {(1,2) (0.08,1.08)};
+\addplot[only marks, mark=*, blue, mark size=1.5pt] coordinates {(-1,-1) (-1,0) (0,-1) (0,1) (1,0) (1,1)};
+\addplot[only marks, mark=x, red, mark size=4pt, ultra thick] coordinates {(0,0)};
+\end{axis}
+\begin{axis}[name=c, at={(b.east)}, anchor=west, xshift=0.6cm,
+    scale only axis, width=3.3cm, height=3.3cm,
+    xmin=-1.6, xmax=1.6, ymin=-1.6, ymax=1.6, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{(c) Eigenvectors}}, title style={yshift=-4pt},
+    xlabel={\scriptsize keep $\mathbf{u}_1$, drop $\mathbf{u}_2$}, label style={font=\scriptsize}]
+\addplot[green!50!black, dashed, domain=-1.6:1.6, samples=2] {x};
+\addplot[red!80!black, dashed, domain=-1.6:1.6, samples=2] {-x};
+\addplot[only marks, mark=*, blue, mark size=1.5pt] coordinates {(-1,-1) (-1,0) (0,-1) (0,1) (1,0) (1,1)};
+\addplot[green!50!black, ultra thick, -latex] coordinates {(0,0) (0.707,0.707)};
+\addplot[red!80!black, ultra thick, -latex] coordinates {(0,0) (0.707,-0.707)};
+\end{axis}
+\end{tikzpicture}
+
+\vspace{4pt}
+\begin{tikzpicture}
+\begin{axis}[name=d,
+    scale only axis, width=3.3cm, height=3.3cm,
+    xmin=-1.6, xmax=1.6, ymin=-1.6, ymax=1.6, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{(d) Project}}, title style={yshift=-4pt},
+    xlabel={\scriptsize drop onto $\mathbf{u}_1$}, label style={font=\scriptsize}]
+\addplot[green!50!black, thick, domain=-1.6:1.6, samples=2] {x};
+\addplot[orange, -latex] coordinates {(-1,0) (-0.55,-0.45)};
+\addplot[orange, -latex] coordinates {(0,-1) (-0.45,-0.55)};
+\addplot[orange, -latex] coordinates {(0,1) (0.45,0.55)};
+\addplot[orange, -latex] coordinates {(1,0) (0.55,0.45)};
+\addplot[only marks, mark=*, blue!35, mark size=1.5pt] coordinates {(-1,0) (0,-1) (0,1) (1,0)};
+\addplot[only marks, mark=*, green!50!black, mark size=1.7pt] coordinates {(-1,-1) (-0.5,-0.5) (0.5,0.5) (1,1)};
+\end{axis}
+\begin{axis}[name=e, at={(d.east)}, anchor=west, xshift=0.6cm,
+    scale only axis, width=3.3cm, height=3.3cm,
+    xmin=-1.8, xmax=1.8, ymin=-1, ymax=1, enlargelimits=false,
+    major tick length=0pt, grid=none,
+    xtick={-1.414,0,1.414}, xticklabels={$-\sqrt2$,$0$,$\sqrt2$}, yticklabels={},
+    tick label style={font=\scriptsize},
+    title={\small\textbf{(e) Result}}, title style={yshift=-4pt},
+    xlabel={\scriptsize one number $z_n$ per point}, label style={font=\scriptsize}]
+\addplot[green!50!black, thick] coordinates {(-1.8,0) (1.8,0)};
+\addplot[only marks, mark=*, green!50!black, mark size=1.7pt] coordinates {(-1.414,0) (-0.707,0) (-0.707,0.25) (0.707,0) (0.707,0.25) (1.414,0)};
+\end{axis}
+\begin{axis}[name=f, at={(e.east)}, anchor=west, xshift=0.6cm,
+    scale only axis, width=3.3cm, height=3.3cm,
+    xmin=-0.6, xmax=2.6, ymin=-0.6, ymax=2.6, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{(f) Reconstruct}}, title style={yshift=-4pt},
+    xlabel={\scriptsize squares $= \hat{\mathbf{x}}_n$}, label style={font=\scriptsize}]
+\addplot[green!50!black, thick, domain=-0.6:2.6, samples=2] {x};
+\addplot[orange, dashed] coordinates {(0,1) (0.5,0.5)};
+\addplot[orange, dashed] coordinates {(1,0) (0.5,0.5)};
+\addplot[orange, dashed] coordinates {(1,2) (1.5,1.5)};
+\addplot[orange, dashed] coordinates {(2,1) (1.5,1.5)};
+\addplot[only marks, mark=*, blue, mark size=1.5pt] coordinates {(0,0) (0,1) (1,0) (1,2) (2,1) (2,2)};
+\addplot[only marks, mark=square*, green!50!black, mark size=1.5pt] coordinates {(0,0) (0.5,0.5) (1.5,1.5) (2,2)};
 \end{axis}
 \end{tikzpicture}
 \par}
-Every direction in between keeps between 2 and 6. The max and min are exactly the two eigenvectors.
 
-\textbf{Eigenvector refresher.} $A\mathbf{v} = \lambda\mathbf{v}$: $A$ only \emph{stretches} $\mathbf{v}$ by $\lambda$, without changing its direction. With $A = \begin{bmatrix}4&2\\2&4\end{bmatrix}$:
+\subsection*{Why the Top Eigenvector}
+PCA picks the unit direction $\mathbf{u}$ that keeps the most spread:
 \[
-A\begin{bmatrix}1\\1\end{bmatrix} = \begin{bmatrix}6\\6\end{bmatrix} = 6\begin{bmatrix}1\\1\end{bmatrix}\;\checkmark
-\qquad
-A\begin{bmatrix}1\\-1\end{bmatrix} = 2\begin{bmatrix}1\\-1\end{bmatrix}\;\checkmark
-\qquad
-A\begin{bmatrix}1\\0\end{bmatrix} = \begin{bmatrix}4\\2\end{bmatrix}\;\text{(direction changed)}
+\max_{\|\mathbf{u}\|=1} \; \sum_{n=1}^N (\mathbf{x}_n^\top\mathbf{u})^2 = \max_{\|\mathbf{u}\|=1}\; \mathbf{u}^\top X^\top X\,\mathbf{u}
+\quad\Longrightarrow\quad
+X^\top X\,\mathbf{u} = \lambda\mathbf{u}
 \]
+
+{\centering
+\begin{tikzpicture}
+\begin{axis}[name=g,
+    scale only axis, width=3.3cm, height=3.3cm,
+    xmin=-1.6, xmax=1.6, ymin=-1.6, ymax=1.6, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{Good: 45°}}, title style={text=green!50!black, yshift=-4pt},
+    xlabel={\scriptsize spread out}, label style={font=\scriptsize}]
+\addplot[green!50!black, thick, domain=-1.6:1.6, samples=2] {x};
+\addplot[orange, dashed] coordinates {(-1,0) (-0.5,-0.5)};
+\addplot[orange, dashed] coordinates {(0,-1) (-0.5,-0.5)};
+\addplot[orange, dashed] coordinates {(0,1) (0.5,0.5)};
+\addplot[orange, dashed] coordinates {(1,0) (0.5,0.5)};
+\addplot[only marks, mark=*, green!50!black, mark size=1.7pt] coordinates {(-1,-1) (-0.5,-0.5) (0.5,0.5) (1,1)};
+\addplot[only marks, mark=*, blue, mark size=1.5pt] coordinates {(-1,-1) (-1,0) (0,-1) (0,1) (1,0) (1,1)};
+\end{axis}
+\begin{axis}[name=h, at={(g.east)}, anchor=west, xshift=0.6cm,
+    scale only axis, width=3.3cm, height=3.3cm,
+    xmin=-1.6, xmax=1.6, ymin=-1.6, ymax=1.6, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{Bad: 135°}}, title style={text=red!80!black, yshift=-4pt},
+    xlabel={\scriptsize bunched up}, label style={font=\scriptsize}]
+\addplot[red!80!black, thick, domain=-1.6:1.6, samples=2] {-x};
+\addplot[orange, dashed] coordinates {(-1,-1) (0,0)};
+\addplot[orange, dashed] coordinates {(1,1) (0,0)};
+\addplot[orange, dashed] coordinates {(-1,0) (-0.5,0.5)};
+\addplot[orange, dashed] coordinates {(0,1) (-0.5,0.5)};
+\addplot[orange, dashed] coordinates {(0,-1) (0.5,-0.5)};
+\addplot[orange, dashed] coordinates {(1,0) (0.5,-0.5)};
+\addplot[only marks, mark=*, red!80!black, mark size=1.7pt] coordinates {(0,0) (-0.5,0.5) (0.5,-0.5)};
+\addplot[only marks, mark=*, blue, mark size=1.5pt] coordinates {(-1,-1) (-1,0) (0,-1) (0,1) (1,0) (1,1)};
+\end{axis}
+\begin{axis}[at={(h.east)}, anchor=west, xshift=1.1cm,
+    scale only axis, width=4.2cm, height=3.3cm,
+    xmin=0, xmax=180, ymin=0, ymax=7, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xtick={0,45,90,135,180}, ytick={2,4,6},
+    tick label style={font=\scriptsize},
+    title={\small\textbf{Spread kept vs.\ angle}}, title style={yshift=-4pt},
+    xlabel={\scriptsize max $= \lambda_1 = 6$, min $= \lambda_2 = 2$}, label style={font=\scriptsize}]
+\addplot[thick, blue, domain=0:180, samples=90] {4 + 2*sin(2*x)};
+\addplot[only marks, mark=*, green!50!black, mark size=1.7pt] coordinates {(45,6)};
+\addplot[only marks, mark=*, red!80!black, mark size=1.7pt] coordinates {(135,2)};
+\end{axis}
+\end{tikzpicture}
+\par}
+
 \begin{itemize}
-  \item Not every matrix has nice eigenvectors (a rotation has none that are real). But $X^\top X$ is \textbf{symmetric}, so its eigenvalues are real and $\geq 0$ (variance can't be negative), and its eigenvectors are orthogonal.
-  \item Any multiple of an eigenvector is still one, so PCA normalizes to length 1 (the sign doesn't matter).
+  \item \textbf{Max spread = min error.} Each point's length$^2$ = kept$^2$ + lost$^2$ (Pythagoras), so the total is fixed: here kept + lost $= 8$ at every angle.
+  \item \textbf{Eigenvalue = spread} along its eigenvector, so the best direction is the one with the largest $\lambda$.
+  \item $\|\mathbf{u}\| = 1$ makes $\mathbf{x}^\top\mathbf{u}$ the true projected length. The sign doesn't matter: $\pm\mathbf{u}$ is the same line.
+  \item \textbf{Not linear regression:} PCA uses \emph{perpendicular} distance and no labels; regression uses \emph{vertical} distance.
 \end{itemize}
 
-\subsection*{Algorithm (Worked Example)}
+\subsection*{Finding Eigenvectors by Hand}
 \begin{enumerate}[leftmargin=1.5em]
-  \item \textbf{Center:} $\bar{\mathbf{x}} = (1,1)$, so $(2,2) \to (1,1)$, etc.
-  \item \textbf{Spread matrix:} stack the centered points as rows of $X$: $\;X^\top X = \begin{bmatrix}4&2\\2&4\end{bmatrix}$.
-  \item \textbf{Eigenvalues:} $\det(X^\top X - \lambda I) = (4-\lambda)^2 - 4 = (\lambda-6)(\lambda-2) = 0 \Rightarrow \lambda = 6,\,2$.
-  \item \textbf{Eigenvectors:} solve $(X^\top X - \lambda I)\mathbf{v} = \mathbf{0}$. For $\lambda=6$: $\begin{bmatrix}-2&2\\2&-2\end{bmatrix}\mathbf{v} = \mathbf{0} \Rightarrow \mathbf{v} = (1,1)$. For $\lambda=2$: $\mathbf{v} = (1,-1)$.
-  \item \textbf{Pick the top $k$ eigenvalues:} $k=1$, so keep $(1,1)$.
-  \item \textbf{Normalize:} $\mathbf{u}_1 = \frac{1}{\sqrt2}(1,1)$.
-  \item \textbf{Project} (the end goal): $z_n = (\mathbf{x}_n - \bar{\mathbf{x}})^\top\mathbf{u}_1$. Each 2D point becomes 1 number:
+  \item Eigenvalues: $\det(X^\top X - \lambda I) = (4-\lambda)^2 - 4 = (\lambda - 6)(\lambda - 2) = 0 \;\Rightarrow\; \lambda = 6,\, 2$.
+  \item Eigenvectors: solve $(X^\top X - \lambda I)\mathbf{v} = \mathbf{0}$: $\;\lambda = 6 \to (1,1)$, $\;\lambda = 2 \to (1,-1)$.
+  \item Normalize to length 1: $\mathbf{u}_1 = \frac{1}{\sqrt2}(1,1)$, $\;\mathbf{u}_2 = \frac{1}{\sqrt2}(1,-1)$.
 \end{enumerate}
-
-\begin{center}
-\begin{tabular}{lcccccc}
-\toprule
-original $\mathbf{x}_n$ & $(0,0)$ & $(0,1)$ & $(1,0)$ & $(1,2)$ & $(2,1)$ & $(2,2)$ \\
-centered & $(-1,-1)$ & $(-1,0)$ & $(0,-1)$ & $(0,1)$ & $(1,0)$ & $(1,1)$ \\
-$z_n$ & $-\sqrt2$ & $-\tfrac{1}{\sqrt2}$ & $-\tfrac{1}{\sqrt2}$ & $\tfrac{1}{\sqrt2}$ & $\tfrac{1}{\sqrt2}$ & $\sqrt2$ \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\begin{enumerate}[leftmargin=1.5em, start=8]
-  \item \textbf{Reconstruct (if asked):} $\hat{\mathbf{x}}_n = \bar{\mathbf{x}} + z_n\mathbf{u}_1$. E.g.\ $(1,0)$: $z = -\frac{1}{\sqrt2}$, $\hat{\mathbf{x}} = (1,1) - \frac12(1,1) = (\frac12,\frac12)$.
-\end{enumerate}
-\textbf{Read the question:} ``vector projection'' wants the 2D landing point $(\mathbf{x}^\top\mathbf{u})\,\mathbf{u}$, not the 1D number $z$. Practice midterm Q2(d) projects the \emph{original} points: $(1,2) \to \frac{3}{\sqrt2}\cdot\frac{1}{\sqrt2}(1,1) = (\frac32,\frac32)$.
 
 \subsection*{$k$ Components and Choosing $k$}
-To go from $D$ to $k$ dimensions, keep the top $k$ eigenvectors $\mathbf{u}_1, \dots, \mathbf{u}_k$ (orthogonal, largest $\lambda$'s). Stack them as the rows of $W \in \mathbb{R}^{k\times D}$:
+Keep the top $k$ eigenvectors $\mathbf{u}_1, \dots, \mathbf{u}_k$:
 \[
-\mathbf{z}_n = W(\mathbf{x}_n - \bar{\mathbf{x}}) = \begin{bmatrix}\mathbf{u}_1^\top(\mathbf{x}_n - \bar{\mathbf{x}}) \\ \vdots \\ \mathbf{u}_k^\top(\mathbf{x}_n - \bar{\mathbf{x}})\end{bmatrix} \in \mathbb{R}^k,
+z_{nj} = (\mathbf{x}_n - \bar{\mathbf{x}})^\top \mathbf{u}_j,
 \qquad
-\hat{\mathbf{x}}_n = \bar{\mathbf{x}} + W^\top\mathbf{z}_n = \bar{\mathbf{x}} + \sum_{j=1}^k z_{nj}\,\mathbf{u}_j
+\hat{\mathbf{x}}_n = \bar{\mathbf{x}} + \sum_{j=1}^k z_{nj}\,\mathbf{u}_j
 \]
 \begin{itemize}
-  \item Example: $\mathbf{x} \in \mathbb{R}^{10{,}000}$, $k = 10$: $\;\mathbf{x} \to (\mathbf{u}_1^\top\mathbf{x}, \dots, \mathbf{u}_{10}^\top\mathbf{x})$, so 10{,}000 numbers become 10.
-  \item With $k = D$ you keep everything: $(1,0) \to \frac12(1,1) + \frac12(1,-1) = (1,0)$, with zero error.
-  \item \textbf{Error lost} = sum of the \emph{dropped} eigenvalues: $\lambda_{k+1} + \dots + \lambda_D$.
+  \item E.g.\ $\mathbf{x} \in \mathbb{R}^{10{,}000}$, $k = 10$: $\;\mathbf{x} \to (\mathbf{u}_1^\top\mathbf{x}, \dots, \mathbf{u}_{10}^\top\mathbf{x})$.
+  \item \textbf{Error} = sum of the \emph{dropped} eigenvalues.
+  \item \textbf{Fraction of variance kept} $= \dfrac{\lambda_1 + \dots + \lambda_k}{\lambda_1 + \dots + \lambda_D}$, e.g.\ $\frac{6}{8} = 75\%$. Pick the smallest $k$ keeping $\sim$90--95\%.
 \end{itemize}
-\begin{keybox}
-\textbf{Fraction of variance kept} $= \dfrac{\lambda_1 + \dots + \lambda_k}{\lambda_1 + \dots + \lambda_D}$.\quad Example: $\frac{6}{6+2} = 75\%$. Pick the smallest $k$ that keeps e.g.\ 90--95\%.
-\end{keybox}
-Fall '26 midterm: standardized (height, weight) gives $\lambda_1 = 1.6$, $\mathbf{v}_1 = \frac{1}{\sqrt2}(1,1)$ (``overall size''), and $\lambda_2 = 0.4$, $\mathbf{v}_2 = \frac{1}{\sqrt2}(1,-1)$ (``build'': tall and light vs.\ short and heavy). Kept: $1.6/2 = 0.8$.
 
-\subsection*{Eigenvalue vs.\ Variance}
-Same eigenvectors, different scale, depending on which matrix you use:
+\subsection*{Good to Know}
 \begin{itemize}
-  \item Eigenvalues of $\Sigma = \frac1N X^\top X$ = \textbf{variance} along each component (reference sheet). Example: $1$ and $\frac13$.
-  \item Eigenvalues of $X^\top X$ = \textbf{sum of squared projections} $= N \times$ variance (practice midterm). Example: $6$ and $2$.
-  \item The ranking and the fraction kept ($75\%$) are the same either way.
+  \item \textbf{Standardize} (divide each feature by its std) when features have different units. Otherwise the biggest units dominate.
+  \item \textbf{Vector projection} means the point $(\mathbf{x}^\top\mathbf{u})\,\mathbf{u}$ in the original space, not the number $z$. E.g.\ $(1,2) \to (\frac32, \frac32)$.
+  \item \textbf{$\Sigma = \frac1N X^\top X$ vs.\ $X^\top X$:} same eigenvectors; the eigenvalues of $\Sigma$ are the variances ($1, \frac13$), $N\times$ smaller. Ranking and fraction kept don't change.
+  \item \textbf{Via SVD:} $X = U S V^\top \Rightarrow X^\top X = V S^2 V^\top$, so the principal components are the columns of $V$, with $\lambda_j = s_j^2/N$.
 \end{itemize}
-
-\subsection*{Via SVD}
-Write the centered data as $\tilde X = U S V^\top$ ($U, V$ orthogonal, $S$ diagonal with singular values $s_j$). Then
-\[
-\tilde X^\top \tilde X = V S^\top \underbrace{U^\top U}_{I} S V^\top = V S^2 V^\top
-\;\;\Longrightarrow\;\; \tilde X^\top\tilde X\,V = V S^2
-\]
-\begin{itemize}
-  \item Column $j$ of $V$ satisfies $\tilde X^\top\tilde X\,\mathbf{v}_j = s_j^2\,\mathbf{v}_j$, so \textbf{the principal components are the columns of $V$} (HW1 Q4).
-  \item Eigenvalues: $s_j^2$ for $\tilde X^\top\tilde X$, or $\lambda_j = s_j^2/N$ for $\Sigma$.
-  \item In practice, use SVD: it skips forming $X^\top X$. Truncated SVD (HW2) skips centering to keep sparse data sparse.
-\end{itemize}
-
-\subsection*{PCA vs.\ Linear Regression}
-Both fit a line by minimizing squared distances, but:
-\begin{center}
-\begin{tabular}{lll}
-\toprule
- & Linear regression & PCA \\
-\midrule
-Labels? & yes (supervised) & no (unsupervised) \\
-Error measured & vertical distance to the line & perpendicular distance to the line \\
-Goal & predict $t$ from $\mathbf{x}$ & compress / summarize $\mathbf{x}$ \\
-Example slope (6 pts) & $0.5$ & $1$ \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\begin{keybox}
-\textbf{Summary.} Center $\rightarrow$ eigenvectors of $X^\top X$ $\rightarrow$ keep the largest $\lambda$'s $\rightarrow$ normalize $\rightarrow$ project $z = \mathbf{x}^\top\mathbf{u}$.\\
-Max variance $=$ min reconstruction error $=$ top eigenvector. Variance along $\mathbf{u}_j$ $= \lambda_j$. Error $=$ dropped $\lambda$'s.
-\end{keybox}
 
 \end{document}
