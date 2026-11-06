@@ -6,6 +6,7 @@
 
 \subsection*{PCA Step by Step}
 
+\begin{keeptogether}
 \textbf{Running example} (2D $\rightarrow$ 1D): 6 points $(0,0),(0,1),(1,0),(1,2),(2,1),(2,2)$. The cloud stretches along a diagonal.
 
 {\centering
@@ -20,6 +21,9 @@
 \end{axis}
 \end{tikzpicture}
 \par}
+\end{keeptogether}
+
+\begin{keeptogether}
 \textbf{Step 1: Center.} Subtract the mean from every point (the best line passes through the mean):
 \[
 \bar{\mathbf{x}} = \frac1N\sum_{n=1}^N \mathbf{x}_n = (1,1),
@@ -42,6 +46,9 @@
 \end{axis}
 \end{tikzpicture}
 \par}
+\end{keeptogether}
+
+\begin{keeptogether}
 \textbf{Step 2: Find the eigenvectors.} Stack the centered points as rows of $X$. The eigenvectors of $X^\top X$ are the cloud's long and short axes:
 \[
 X^\top X = \begin{bmatrix}4&2\\2&4\end{bmatrix},
@@ -66,6 +73,9 @@ X^\top X = \begin{bmatrix}4&2\\2&4\end{bmatrix},
 \end{axis}
 \end{tikzpicture}
 \par}
+\end{keeptogether}
+
+\begin{keeptogether}
 \textbf{Step 3: Keep the top $k$.} Each eigenvalue is the spread along its eigenvector, so keep the largest. Here $k = 1$: keep $\mathbf{u}_1$ ($\lambda_1 = 6$), drop $\mathbf{u}_2$ ($\lambda_2 = 2$).
 
 {\centering
@@ -82,6 +92,9 @@ X^\top X = \begin{bmatrix}4&2\\2&4\end{bmatrix},
 \end{axis}
 \end{tikzpicture}
 \par}
+\end{keeptogether}
+
+\begin{keeptogether}
 \textbf{Step 4: Project.} Drop each point onto the $\mathbf{u}_1$ line at a right angle. It becomes how far along $\mathbf{u}_1$ it lands, one number per point:
 \[
 z_n = \mathbf{x}_n^\top \mathbf{u}_1,
@@ -106,6 +119,9 @@ Result: $z = -\sqrt2,\, -\tfrac{1}{\sqrt2},\, -\tfrac{1}{\sqrt2},\, \tfrac{1}{\s
 \end{axis}
 \end{tikzpicture}
 \par}
+\end{keeptogether}
+
+\begin{keeptogether}
 \textbf{Step 5 (if asked): Reconstruct.} Start at the mean and go $z_n$ along $\mathbf{u}_1$. The gap $\mathbf{x}_n - \hat{\mathbf{x}}_n$ is the error:
 \[
 \hat{\mathbf{x}}_n = \bar{\mathbf{x}} + z_n\,\mathbf{u}_1
@@ -128,7 +144,9 @@ Result: $z = -\sqrt2,\, -\tfrac{1}{\sqrt2},\, -\tfrac{1}{\sqrt2},\, \tfrac{1}{\s
 \end{axis}
 \end{tikzpicture}
 \par}
+\end{keeptogether}
 
+\begin{keeptogether}
 \subsection*{Why the Top Eigenvector}
 PCA picks the unit direction $\mathbf{u}$ that keeps the most spread:
 \[
@@ -190,6 +208,7 @@ X^\top X\,\mathbf{u} = \lambda\mathbf{u}
   \item \textbf{Max spread = min error.} length$^2$ = kept$^2$ + lost$^2$ (Pythagoras), so kept + lost $= 8$ at every angle.
   \item \textbf{Eigenvalue = spread} along its eigenvector, so keep the largest $\lambda$'s.
 \end{itemize}
+\end{keeptogether}
 
 \subsection*{Key Facts}
 \begin{itemize}
