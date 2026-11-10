@@ -99,7 +99,7 @@ E(\mathbf{w}) = \frac{1}{2}\sum_{n=1}^{N} \Big( \underbrace{y(\mathbf{x}_n, \mat
   \item The $\tfrac12$ only cancels the 2 when differentiating; it does not change the minimizer.
 \end{itemize}
 
-We want the weights that minimize the loss, $\mathbf{w}^* = \arg\min_{\mathbf{w}} E(\mathbf{w})$. Two ways to find them: solve directly (\textbf{normal equation}) or iterate (\textbf{gradient descent}, next section).
+We want the weights that minimize the loss, $\mathbf{w}^* = \arg\min_{\mathbf{w}} E(\mathbf{w})$. Two ways to find them: solve directly (\textbf{normal equation}) or iterate (\textbf{gradient descent}).
 
 \subsection*{Normal Equation (Closed Form)}
 For linear regression we can \textbf{jump straight to the minimum}: the bottom of the bowl has zero slope, so set the gradient to $\mathbf{0}$ and solve directly.
