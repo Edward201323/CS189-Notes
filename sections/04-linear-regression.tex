@@ -50,10 +50,7 @@ Or plot size vs.\ price and fit a straight line through the points.
 \[
 \text{Training set } \mathcal{D} \;\longrightarrow\; \text{Learning algorithm} \;\longrightarrow\; \text{Hypothesis } y(\mathbf{x}, \mathbf{w})
 \]
-\begin{itemize}
-  \item The learning algorithm takes the training set and outputs a function (the \textbf{hypothesis}).
-  \item The hypothesis takes a house we have not seen yet and outputs an estimated price.
-\end{itemize}
+The learning algorithm turns the training set into a function (the \textbf{hypothesis}), which takes a house we haven't seen and outputs an estimated price.
 
 \subsection*{Representing the Hypothesis}
 One feature ($x_1$ = size):
@@ -94,10 +91,7 @@ $\mathbf{w}^\top\mathbf{x} = 50(1) + 0.1(2104) + 20(3) = 320.4$.
 \[
 E(\mathbf{w}) = \frac{1}{2}\sum_{n=1}^{N} \Big( \underbrace{y(\mathbf{x}_n, \mathbf{w})}_{\text{prediction}} - \underbrace{t_n}_{\text{target}} \Big)^2
 \]
-\begin{itemize}
-  \item Squared difference between prediction and true value, summed over all $N$ examples.
-  \item The $\tfrac12$ only cancels the 2 when differentiating; it does not change the minimizer.
-\end{itemize}
+This is the squared difference between prediction and target, summed over all $N$ examples. The $\tfrac12$ only cancels the 2 when differentiating; it doesn't change the minimizer.
 
 We want the weights that minimize the loss, $\mathbf{w}^* = \arg\min_{\mathbf{w}} E(\mathbf{w})$. Two ways to find them: solve directly (\textbf{normal equation}) or iterate (\textbf{gradient descent}).
 

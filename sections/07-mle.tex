@@ -17,9 +17,7 @@ L(\theta) = p(\mathcal{D} \mid \theta)
 \qquad \text{coin:} \quad L(\theta) = \binom{10}{7}\,\theta^7 (1-\theta)^3
 \]
 
-\begin{itemize}
-  \item Same formula, different variable: probability varies the data, likelihood varies $\theta$.
-\end{itemize}
+Same formula, different variable: probability varies the data, likelihood varies $\theta$.
 
 \begin{keeptogether}
 {\centering
@@ -310,6 +308,4 @@ In matrix form ($\sigma^2$ cancels):
 That's the normal equation from Linear Regression, so the MLE line \textbf{is} the least-squares line.
 \end{keeptogether}
 
-\begin{itemize}
-  \item \textbf{Noise model $\Rightarrow$ loss:} Gaussian noise gives squared error. Laplace noise gives absolute error $\sum |t_n - \mathbf{w}^\top\mathbf{x}_n|$, which is less sensitive to outliers.
-\end{itemize}
+\textbf{Noise model $\Rightarrow$ loss:} Gaussian noise gives squared error. Laplace noise gives absolute error $\sum |t_n - \mathbf{w}^\top\mathbf{x}_n|$, which is less sensitive to outliers.

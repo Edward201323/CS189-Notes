@@ -159,13 +159,7 @@ Instead of scanning through \emph{all} $N$ examples before each update, SGD upda
 \end{tikzpicture}
 \par}
 
-\begin{itemize}
-  \item The path is \textbf{noisy}: each step fits one example, so it doesn't always head downhill, but it does on average.
-  \item It \textbf{never fully converges}. It keeps bouncing around in a region near the minimum.
-  \item Fix: \textbf{slowly decrease the learning rate} over time. Smaller steps help it settle closer to the minimum.
-  \item Why use it: each step is \emph{much} cheaper, so on large datasets it makes progress far faster than batch GD.
-  \item Small dataset: just use batch GD (one less thing to tune). Large dataset: use SGD.
-\end{itemize}
+Each step fits one example, so the path is \textbf{noisy}: downhill on average, but it never fully converges and keeps bouncing near the minimum. \textbf{Slowly decreasing the learning rate} helps it settle. The payoff is that each step is \emph{much} cheaper, so use SGD on large datasets and batch GD on small ones.
 
 \textbf{Update rule.} Loop over $n = 1, \dots, N$; for each $n$, update every $d$:
 \[
