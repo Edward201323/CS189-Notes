@@ -151,10 +151,7 @@ Same as gradient descent for linear regression: start at $\mathbf{w} = \mathbf{0
 E(\mathbf{w}) = -\sum_{n=1}^{N} \Big[\, \underbrace{t_n \ln y_n}_{\text{on if } t_n = 1} + \underbrace{(1 - t_n)\ln(1 - y_n)}_{\text{on if } t_n = 0} \,\Big],
 \qquad y_n = \sigma(\mathbf{w}^\top\mathbf{x}_n)
 \]
-\begin{itemize}
-  \item Comes from MLE with 0/1 labels (like squared error comes from MLE with Gaussian noise).
-  \item \textbf{Convex}: one minimum, no local minima.
-\end{itemize}
+Why not squared distance $(y - t)^2$ like linear regression? It caps at 1, so a confidently wrong curve barely gets punished, and with the sigmoid it isn't convex.
 
 \begin{keeptogether}
 \textbf{Step 3: Take downhill steps.} To go downhill we need the derivative of $E$. For one tumor, chain rule through $y = \sigma(a)$ and $a = \mathbf{w}^\top\mathbf{x}$:
@@ -267,3 +264,39 @@ Plug a new tumor into the trained model ($w_0 = -14.81$, $w_1 = 1.00$) and predi
 \end{keeptogether}
 
 A tumor left of the boundary ($P < T$) is predicted not cancer ($t = 0$); right of it ($P \ge T$) is predicted cancer ($t = 1$). Raising $T$ moves the boundary right, so radius 14 goes from cancer at $T = 0.2$ to not cancer at $T = 0.5$.
+\subsection*{Separable Data and Regularization}
+\begin{keeptogether}
+If one radius cleanly splits the classes, a steeper S always lowers the cross-entropy, so gradient descent pushes $w_1 \to \infty$ and the curve becomes a step: 100\% sure about everything. Fix: add a penalty on big weights,
+\[
+E(\mathbf{w}) + \frac{\lambda}{2}\|\mathbf{w}\|^2,
+\]
+so the weights stop at a finite value.
+
+{\centering
+\begin{tikzpicture}
+\begin{axis}[scale only axis, width=10.9cm, height=2.6cm,
+    xmin=8, xmax=22, ymin=-0.1, ymax=1.1, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{Separable data: the S keeps getting steeper}}, title style={yshift=-4pt},
+    xlabel={\scriptsize tumor radius $x$ (every not-cancer tumor is below 15, every cancer tumor is above)}, label style={font=\scriptsize}]
+\addplot[only marks, mark=*, blue, mark size=1.5pt] coordinates {
+  (9.5,0.02) (10.4,-0.02) (11.2,0.01) (12.1,-0.01) (13.0,0.02) (13.8,-0.02) (14.4,0.01)
+  (15.6,0.99) (16.3,1.02) (17.1,0.98) (18.0,1.01) (18.9,0.99) (19.8,1.02) (20.7,0.98)};
+\addplot[thick, orange, domain=8:22, samples=150] {1/(1+exp(-0.7*(x-15)))};
+\addplot[thick, red!70, domain=8:22, samples=150] {1/(1+exp(-2.5*(x-15)))};
+\addplot[thick, red!80!black, domain=8:22, samples=200] {1/(1+exp(-12*(x-15)))};
+\node[font=\scriptsize, orange, anchor=west] at (axis cs:8.3,0.45) {early};
+\node[font=\scriptsize, red!80!black, anchor=west] at (axis cs:15.3,0.45) {later: almost a step};
+\end{axis}
+\end{tikzpicture}
+\par}
+\end{keeptogether}
+
+\subsection*{Key Facts}
+\begin{itemize}
+  \item Model: $P(C_1 \mid \mathbf{x}) = \sigma(\mathbf{w}^\top\mathbf{x})$. The decision boundary $\mathbf{w}^\top\mathbf{x} = 0$ is always \textbf{linear}.
+  \item Cross-entropy comes from MLE and is \textbf{convex}. Minimizing squared loss is \textbf{not} the same thing.
+  \item No closed form, so train with gradient descent. Gradient: $\sum_n (y_n - t_n)\,\mathbf{x}_n$, using $\sigma'(a) = \sigma(a)\big(1 - \sigma(a)\big)$.
+  \item \textbf{Discriminative}: it models $P(C_1 \mid \mathbf{x})$ directly.
+\end{itemize}
