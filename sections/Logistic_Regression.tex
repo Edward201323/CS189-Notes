@@ -207,3 +207,62 @@ Start at $\mathbf{w} = \mathbf{0}$ (every $y_n = 0.5$, a flat line) and repeat u
   \item \textbf{No normal equation:} setting the derivative to 0 leaves $\mathbf{w}$ stuck inside $\sigma$, so gradient descent is the only way.
   \item SGD and mini-batch work the same as before. Standardizing the radius first makes it converge much faster.
 \end{itemize}
+\subsection*{Making Predictions}
+\begin{keeptogether}
+Plug a new tumor into the trained model ($w_0 = -14.81$, $w_1 = 1.00$) and predict malignant if $P \ge T$, where $T$ is a \textbf{threshold} you choose ($0.5$ by default). The boundary is the radius where the curve crosses $T$.
+
+{\centering
+\begin{tikzpicture}
+\begin{axis}[name=t2, scale only axis, width=3.4cm, height=2.6cm,
+    xmin=9, xmax=20, ymin=-0.05, ymax=1.05, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{$T = 0.2$}}, title style={yshift=-4pt},
+    xlabel={\scriptsize boundary at radius 13.4}, label style={font=\scriptsize}]
+\addplot[thick, green!50!black, domain=9:20, samples=120] {1/(1+exp(-(x-14.81)))};
+\addplot[gray, dashed, thick] coordinates {(9,0.2) (20,0.2)};
+\addplot[orange, dashed, thick] coordinates {(13.4,-0.05) (13.4,1.05)};
+\addplot[only marks, mark=*, blue, mark size=2pt] coordinates {(14,0.308) (17,0.899)};
+\addplot[only marks, mark=o, blue, mark size=2pt, thick] coordinates {(12,0.057)};
+\node[font=\scriptsize, anchor=east] at (axis cs:11.7,0.057) {12};
+\node[font=\scriptsize, anchor=west] at (axis cs:14.15,0.28) {14};
+\node[font=\scriptsize, anchor=north west] at (axis cs:17.2,0.72) {17};
+\end{axis}
+\begin{axis}[name=t5, at={(t2.east)}, anchor=west, xshift=0.45cm,
+    scale only axis, width=3.4cm, height=2.6cm,
+    xmin=9, xmax=20, ymin=-0.05, ymax=1.05, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{$T = 0.5$}}, title style={yshift=-4pt},
+    xlabel={\scriptsize boundary at radius 14.8}, label style={font=\scriptsize}]
+\addplot[thick, green!50!black, domain=9:20, samples=120] {1/(1+exp(-(x-14.81)))};
+\addplot[gray, dashed, thick] coordinates {(9,0.5) (20,0.5)};
+\addplot[orange, dashed, thick] coordinates {(14.8,-0.05) (14.8,1.05)};
+\addplot[only marks, mark=*, blue, mark size=2pt] coordinates {(17,0.899)};
+\addplot[only marks, mark=o, blue, mark size=2pt, thick] coordinates {(12,0.057) (14,0.308)};
+\node[font=\scriptsize, anchor=east] at (axis cs:11.7,0.057) {12};
+\node[font=\scriptsize, anchor=west] at (axis cs:14.15,0.28) {14};
+\node[font=\scriptsize, anchor=north west] at (axis cs:17.2,0.72) {17};
+\end{axis}
+\begin{axis}[name=t8, at={(t5.east)}, anchor=west, xshift=0.45cm,
+    scale only axis, width=3.4cm, height=2.6cm,
+    xmin=9, xmax=20, ymin=-0.05, ymax=1.05, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{$T = 0.8$}}, title style={yshift=-4pt},
+    xlabel={\scriptsize boundary at radius 16.2}, label style={font=\scriptsize}]
+\addplot[thick, green!50!black, domain=9:20, samples=120] {1/(1+exp(-(x-14.81)))};
+\addplot[gray, dashed, thick] coordinates {(9,0.8) (20,0.8)};
+\addplot[orange, dashed, thick] coordinates {(16.2,-0.05) (16.2,1.05)};
+\addplot[only marks, mark=*, blue, mark size=2pt] coordinates {(17,0.899)};
+\addplot[only marks, mark=o, blue, mark size=2pt, thick] coordinates {(12,0.057) (14,0.308)};
+\node[font=\scriptsize, anchor=east] at (axis cs:11.7,0.057) {12};
+\node[font=\scriptsize, anchor=west] at (axis cs:14.15,0.28) {14};
+\node[font=\scriptsize, anchor=north west] at (axis cs:17.2,0.72) {17};
+\end{axis}
+\end{tikzpicture}
+\par}
+{\centering\scriptsize Tumors with radius 12, 14, 17 ($P = 0.06,\ 0.31,\ 0.90$). Filled: predict malignant. Hollow: predict benign.\par}
+\end{keeptogether}
+
+A tumor left of the boundary ($P < T$) is predicted benign ($t = 0$); right of it ($P \ge T$) is predicted malignant ($t = 1$). Raising $T$ moves the boundary right, so radius 14 goes from malignant at $T = 0.2$ to benign at $T = 0.5$.
