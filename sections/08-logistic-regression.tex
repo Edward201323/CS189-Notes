@@ -292,11 +292,3 @@ so the weights stop at a finite value.
 \end{tikzpicture}
 \par}
 \end{keeptogether}
-
-\subsection*{Key Facts}
-\begin{itemize}
-  \item Model: $P(C_1 \mid \mathbf{x}) = \sigma(\mathbf{w}^\top\mathbf{x})$. The decision boundary $\mathbf{w}^\top\mathbf{x} = 0$ is always \textbf{linear}.
-  \item Cross-entropy comes from MLE and is \textbf{convex}. Minimizing squared loss is \textbf{not} the same thing.
-  \item No closed form, so train with gradient descent. Gradient: $\sum_n (y_n - t_n)\,\mathbf{x}_n$, using $\sigma'(a) = \sigma(a)\big(1 - \sigma(a)\big)$.
-  \item \textbf{Discriminative}: it models $P(C_1 \mid \mathbf{x})$ directly.
-\end{itemize}
