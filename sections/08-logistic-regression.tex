@@ -6,7 +6,7 @@ Logistic regression is similar to linear regression, except it predicts the \tex
 
 \begin{itemize}
   \item Example: input $\mathbf{x}$ = measurements of a tumor, output = probability it's cancer.
-  \item This is \textbf{supervised classification}: we get labeled pairs $(\mathbf{x}, t)$ with $t \in \{0, 1\}$.
+  \item This is \textbf{supervised classification}: we get labeled pairs $(\mathbf{x}, t)$ with $t \in \{0, 1\}$. It's \textbf{discriminative}: it models $P(C_1 \mid \mathbf{x})$ directly.
 \end{itemize}
 
 \subsection*{The Sigmoid}
@@ -151,7 +151,7 @@ Same as gradient descent for linear regression: start at $\mathbf{w} = \mathbf{0
 E(\mathbf{w}) = -\sum_{n=1}^{N} \Big[\, \underbrace{t_n \ln y_n}_{\text{on if } t_n = 1} + \underbrace{(1 - t_n)\ln(1 - y_n)}_{\text{on if } t_n = 0} \,\Big],
 \qquad y_n = \sigma(\mathbf{w}^\top\mathbf{x}_n)
 \]
-Why not squared distance $(y - t)^2$ like linear regression? It caps at 1, so a confidently wrong curve barely gets punished, and with the sigmoid it isn't convex.
+Why not squared distance $(y - t)^2$ like linear regression? It caps at 1, so a confidently wrong curve barely gets punished, and with the sigmoid it isn't convex (cross-entropy is).
 
 \begin{keeptogether}
 \textbf{Step 3: Take downhill steps.} To go downhill we need the derivative of $E$. For one tumor, chain rule through $y = \sigma(a)$ and $a = \mathbf{w}^\top\mathbf{x}$:
@@ -207,7 +207,7 @@ Start at $\mathbf{w} = \mathbf{0}$ (every $y_n = 0.5$, a flat line) and repeat u
 \end{itemize}
 \subsection*{Making Predictions}
 \begin{keeptogether}
-Plug a new tumor into the trained model ($w_0 = -14.81$, $w_1 = 1.00$) and predict cancer if $P \ge T$, where $T$ is a \textbf{threshold} you choose ($0.5$ by default). The boundary is the radius where the curve crosses $T$.
+Plug a new tumor into the trained model ($w_0 = -14.81$, $w_1 = 1.00$) and predict cancer if $P \ge T$, where $T$ is a \textbf{threshold} you choose ($0.5$ by default). The boundary is the radius where the curve crosses $T$. With more features it's always a straight line or flat plane ($\mathbf{w}^\top\mathbf{x} = $ const): logistic regression is a \textbf{linear} classifier.
 
 {\centering
 \begin{tikzpicture}

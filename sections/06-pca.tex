@@ -76,7 +76,7 @@ X^\top X = \begin{bmatrix}4&2\\2&4\end{bmatrix},
 \end{keeptogether}
 
 \begin{keeptogether}
-\textbf{Step 3: Keep the top $k$.} Each eigenvalue is the spread along its eigenvector, so keep the largest. Here $k = 1$: keep $\mathbf{u}_1$ ($\lambda_1 = 6$), drop $\mathbf{u}_2$ ($\lambda_2 = 2$).
+\textbf{Step 3: Keep the top $k$.} Each eigenvalue is the spread along its eigenvector, so keep the largest. Here $k = 1$: keep $\mathbf{u}_1$ ($\lambda_1 = 6$), drop $\mathbf{u}_2$ ($\lambda_2 = 2$). \textbf{Fraction of variance kept} $= \frac{\lambda_1 + \dots + \lambda_k}{\lambda_1 + \dots + \lambda_D}$, here $\frac{6}{8} = 75\%$.
 
 {\centering
 \begin{tikzpicture}
