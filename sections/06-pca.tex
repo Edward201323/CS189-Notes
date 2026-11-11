@@ -209,11 +209,3 @@ X^\top X\,\mathbf{u} = \lambda\mathbf{u}
   \item \textbf{Eigenvalue = spread} along its eigenvector, so keep the largest $\lambda$'s.
 \end{itemize}
 \end{keeptogether}
-
-\subsection*{Key Facts}
-\begin{itemize}
-  \item \textbf{Eigenvectors by hand:} solve $\det(X^\top X - \lambda I) = 0$ for $\lambda$, then $(X^\top X - \lambda I)\mathbf{v} = \mathbf{0}$ for $\mathbf{v}$, then normalize to length 1.
-  \item \textbf{Fraction of variance kept} $= \dfrac{\lambda_1 + \dots + \lambda_k}{\lambda_1 + \dots + \lambda_D}$, e.g.\ $\frac{6}{8} = 75\%$. Error = sum of the dropped $\lambda$'s.
-  \item \textbf{Vector projection} = the point $(\mathbf{x}^\top\mathbf{u})\,\mathbf{u}$, not the number $z$. E.g.\ $(1,2) \to (\frac32, \frac32)$.
-  \item \textbf{Via SVD:} $X = U S V^\top$; the principal components are the columns of $V$.
-\end{itemize}
