@@ -5,7 +5,7 @@
 Logistic regression is similar to linear regression, except it predicts the \textbf{probability} that something is true (a number between 0 and 1) rather than an unbounded real-valued quantity.
 
 \begin{itemize}
-  \item Example: input $\mathbf{x}$ = measurements of a tumor, output = probability it's malignant.
+  \item Example: input $\mathbf{x}$ = measurements of a tumor, output = probability it's cancer.
   \item This is \textbf{supervised classification}: we get labeled pairs $(\mathbf{x}, t)$ with $t \in \{0, 1\}$.
 \end{itemize}
 
@@ -42,7 +42,7 @@ Logistic regression is similar to linear regression, except it predicts the \tex
 \end{itemize}
 
 \subsection*{Running Example: Tumor Radius}
-Predict whether a tumor is \textbf{malignant} ($t = 1$, class $C_1$) or \textbf{benign} ($t = 0$, class $C_2$) from one feature: its radius $x$.
+Predict whether a tumor is \textbf{cancer} ($t = 1$, class $C_1$) or \textbf{not cancer} ($t = 0$, class $C_2$) from one feature: its radius $x$.
 
 \begin{keeptogether}
 {\centering
@@ -52,7 +52,7 @@ Predict whether a tumor is \textbf{malignant} ($t = 1$, class $C_1$) or \textbf{
     grid=major, grid style={gray!30}, major tick length=0pt,
     xticklabels={}, yticklabels={},
     title={\small\textbf{The data: labels are only 0 or 1}}, title style={yshift=-4pt},
-    xlabel={\scriptsize tumor radius $x$ (bottom row: $t = 0$ benign, top row: $t = 1$ malignant)}, label style={font=\scriptsize}]
+    xlabel={\scriptsize tumor radius $x$ (bottom row: $t = 0$ not cancer, top row: $t = 1$ cancer)}, label style={font=\scriptsize}]
 \addplot[only marks, mark=*, blue, mark size=1.5pt] coordinates {
   (8.6,0.02) (8.7,0.03) (9.7,-0.03) (10.5,0.03) (11.1,-0.01) (11.2,-0.00) (11.2,-0.03) (11.2,0.02)
   (11.4,-0.02) (11.7,0.03) (11.7,-0.02) (11.8,0.00) (11.8,-0.01) (12.1,0.01) (12.2,-0.02) (12.4,-0.03)
@@ -66,8 +66,8 @@ Predict whether a tumor is \textbf{malignant} ($t = 1$, class $C_1$) or \textbf{
 \end{keeptogether}
 
 \begin{itemize}
-  \item Small tumors are mostly benign and large ones mostly malignant, with some overlap in the middle.
-  \item We want a curve that gives $P(\text{malignant} \mid x)$ for every radius.
+  \item Small tumors are mostly not cancer and large ones mostly cancer, with some overlap in the middle.
+  \item We want a curve that gives $P(\text{cancer} \mid x)$ for every radius.
 \end{itemize}
 
 \subsection*{Why Not a Straight Line?}
@@ -145,7 +145,7 @@ Same as gradient descent for linear regression: start at $\mathbf{w} = \mathbf{0
 \par}
 \end{keeptogether}
 
-\textbf{Step 2: Measure how bad a curve is.} Each tumor's error is $-\ln$ of the probability the curve gives its true label. A malignant tumor with $y = 0.9$ costs $-\ln 0.9 = 0.11$; with $y = 0.1$ it costs $-\ln 0.1 = 2.30$. Summing gives the \textbf{cross-entropy error}:
+\textbf{Step 2: Measure how bad a curve is.} Each tumor's error is $-\ln$ of the probability the curve gives its true label. For a tumor with cancer ($t = 1$), $y = 0.9$ costs $-\ln 0.9 = 0.11$ and $y = 0.1$ costs $-\ln 0.1 = 2.30$. Summing gives the \textbf{cross-entropy error}:
 \[
 E(\mathbf{w}) = -\sum_{n=1}^{N} \Big[\, \underbrace{t_n \ln y_n}_{\text{on if } t_n = 1} + \underbrace{(1 - t_n)\ln(1 - y_n)}_{\text{on if } t_n = 0} \,\Big],
 \qquad y_n = \sigma(\mathbf{w}^\top\mathbf{x}_n)
@@ -209,7 +209,7 @@ Start at $\mathbf{w} = \mathbf{0}$ (every $y_n = 0.5$, a flat line) and repeat u
 \end{itemize}
 \subsection*{Making Predictions}
 \begin{keeptogether}
-Plug a new tumor into the trained model ($w_0 = -14.81$, $w_1 = 1.00$) and predict malignant if $P \ge T$, where $T$ is a \textbf{threshold} you choose ($0.5$ by default). The boundary is the radius where the curve crosses $T$.
+Plug a new tumor into the trained model ($w_0 = -14.81$, $w_1 = 1.00$) and predict cancer if $P \ge T$, where $T$ is a \textbf{threshold} you choose ($0.5$ by default). The boundary is the radius where the curve crosses $T$.
 
 {\centering
 \begin{tikzpicture}
@@ -262,7 +262,7 @@ Plug a new tumor into the trained model ($w_0 = -14.81$, $w_1 = 1.00$) and predi
 \end{axis}
 \end{tikzpicture}
 \par}
-{\centering\scriptsize Tumors with radius 12, 14, 17 ($P = 0.06,\ 0.31,\ 0.90$). Filled: predict malignant. Hollow: predict benign.\par}
+{\centering\scriptsize Tumors with radius 12, 14, 17 ($P = 0.06,\ 0.31,\ 0.90$). Filled: predict cancer. Hollow: predict not cancer.\par}
 \end{keeptogether}
 
-A tumor left of the boundary ($P < T$) is predicted benign ($t = 0$); right of it ($P \ge T$) is predicted malignant ($t = 1$). Raising $T$ moves the boundary right, so radius 14 goes from malignant at $T = 0.2$ to benign at $T = 0.5$.
+A tumor left of the boundary ($P < T$) is predicted not cancer ($t = 0$); right of it ($P \ge T$) is predicted cancer ($t = 1$). Raising $T$ moves the boundary right, so radius 14 goes from cancer at $T = 0.2$ to not cancer at $T = 0.5$.
