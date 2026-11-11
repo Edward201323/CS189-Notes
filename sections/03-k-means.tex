@@ -1,7 +1,7 @@
 % ===== 03-k-means =====
 \section*{K-Means Clustering}
 
-\subsection*{Clustering}
+\subsection*{What Clustering Does}
 \textbf{Goal:} split the data into $K$ groups (clusters) of points that are close together. In the unsupervised plot, an algorithm should discover the 2 groups on its own.
 \begin{itemize}
   \item \textbf{Most common use: market segmentation.} Given a database of customers, group them by e.g.\ age/gender so each group can get its own marketing campaign.
@@ -31,7 +31,8 @@ z_n = \arg\min_{k} \; \|\mathbf{x}_n - \boldsymbol{\mu}_k\|_2^2
 \qquad N_k = \text{number of points assigned to cluster } k
 \]
 
-\textbf{Example} ($K = 2$, same 12 points as the unsupervised plot):
+\subsection*{Example: $K = 2$}
+Same 12 points as the unsupervised plot:
 
 {\centering
 \begin{tikzpicture}

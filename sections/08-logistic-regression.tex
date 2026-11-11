@@ -1,4 +1,4 @@
-% ===== Logistic_Regression =====
+% ===== 08-logistic-regression =====
 \section*{Logistic Regression}
 
 \subsection*{What Logistic Regression Does}
@@ -9,8 +9,9 @@ Logistic regression is similar to linear regression, except it predicts the \tex
   \item This is \textbf{supervised classification}: we get labeled pairs $(\mathbf{x}, t)$ with $t \in \{0, 1\}$.
 \end{itemize}
 
+\subsection*{The Sigmoid}
 \begin{keeptogether}
-\textbf{The sigmoid.} The tool that turns any number into a probability:
+The sigmoid turns any number into a probability:
 \[
 \sigma(a) = \frac{1}{1 + e^{-a}}
 \qquad \text{e.g.}\quad
