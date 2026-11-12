@@ -1,49 +1,33 @@
 \documentclass[11pt]{article}
 \input{preamble}
 
+% To compile only the section(s) you're editing, uncomment and list them:
+% \includeonly{sections/map}
+% Comment the line out again for the full PDF.
+
+% Keeps the title on the same page as the first section (\include normally starts a new page).
+\makeatletter
+\newcommand{\firstinclude}[1]{\let\cs@clearpage\clearpage\def\clearpage{\let\clearpage\cs@clearpage}\include{#1}}
+\makeatother
+
 \begin{document}
 
 % Compact title
 {\centering {\Large\bfseries CS189 Notes} \\[2pt] Edward Song \par}
 \vspace{4pt}
 
-\input{sections/ml-basics}
-\clearpage
-
-\input{sections/k-means}
-\clearpage
-
-\input{sections/pca}
-\clearpage
-
-\input{sections/linear-regression}
-\clearpage
-
-\input{sections/mle}
-\clearpage
-
-\input{sections/map}
-\clearpage
-
-\input{sections/gaussian-mixture-models}
-\clearpage
-
-\input{sections/regularization}
-\clearpage
-
-\input{sections/gradient-descent}
-\clearpage
-
-\input{sections/logistic-regression}
-\clearpage
-
-\input{sections/classification-evaluation}
-\clearpage
-
-\input{sections/neural-networks}
-\clearpage
-
-\input{sections/backpropagation}
-\clearpage
+\firstinclude{sections/ml-basics}
+\include{sections/k-means}
+\include{sections/pca}
+\include{sections/linear-regression}
+\include{sections/mle}
+\include{sections/map}
+\include{sections/gaussian-mixture-models}
+\include{sections/regularization}
+\include{sections/gradient-descent}
+\include{sections/logistic-regression}
+\include{sections/classification-evaluation}
+\include{sections/neural-networks}
+\include{sections/backpropagation}
 
 \end{document}
