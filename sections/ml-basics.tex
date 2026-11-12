@@ -83,7 +83,7 @@ Example: 1000 labeled points $\rightarrow$ 600 train / 200 validation / 200 test
   \item \textbf{Standardize features first.} Otherwise the feature with the biggest units (e.g.\ pounds vs.\ inches) dominates the distance.
 \end{itemize}
 
-\subsection*{Overfitting vs.\ Underfitting}
+\subsection*{Overfitting vs.\ Underfitting (Bias vs.\ Variance)}
 
 \textbf{Example.} Fit three models of increasing flexibility to the same 8 noisy training points (blue):
 
@@ -142,5 +142,18 @@ Overfit & very low & high & memorizes noise (high variance) \\
 \end{center}
 \end{keeptogether}
 
-\subsection*{Bias vs.\ Variance}
+Underfit $\approx$ \textbf{high bias} (the model's assumption is wrong, so it misses the same way on any training set). Overfit $\approx$ \textbf{high variance} (the fit changes a lot depending on which training points you got).
 
+\begin{keeptogether}
+Expected test error splits into three parts, where $h(\mathbf{x})$ is the true function and $f_{\mathbf{w}}(\mathbf{x})$ is the fitted model:
+\[
+\mathbb{E}\big[(t - f_{\mathbf{w}}(\mathbf{x}))^2\big]
+= \underbrace{\mathbb{E}\big[(t - h(\mathbf{x}))^2\big]}_{\text{noise (can't fix)}}
++ \underbrace{\big(h(\mathbf{x}) - \mathbb{E}[f_{\mathbf{w}}(\mathbf{x})]\big)^2}_{\text{bias}^2}
++ \underbrace{\mathbb{E}\big[(f_{\mathbf{w}}(\mathbf{x}) - \mathbb{E}[f_{\mathbf{w}}(\mathbf{x})])^2\big]}_{\text{variance}}
+\]
+\begin{itemize}
+  \item \textbf{Fix high bias}: use a more flexible model (more features, higher-degree polynomial).
+  \item \textbf{Fix high variance}: get more data, use a simpler model, or add \textbf{regularization} (see Regularization).
+\end{itemize}
+\end{keeptogether}
