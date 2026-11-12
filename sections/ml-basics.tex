@@ -1,5 +1,20 @@
 % ===== ml-basics =====
 \section*{ML Basics \& K-Nearest Neighbors}
+% ---- CS189 scope checklist: must include ([x] = already covered) ----
+% Source: Lectures 1-2, 8; reference sheet p.6
+% [x] Supervised vs. unsupervised learning
+% [ ] Classification (category) vs. regression (number)
+% [x] Train / validation / test split; test set used once, at the end
+% [x] Training vs. inference (KNN: training just stores the data)
+% [ ] Parametric vs. non-parametric models (KNN's "parameters" are the whole training set)
+% [ ] Parameter (learned) vs. hyperparameter (chosen by us, picked on the validation set)
+% [x] KNN classification: k nearest by Euclidean distance, majority vote
+% [ ] KNN regression: average the k neighbors' values
+% [ ] Effect of k: small k overfits, large k underfits; pick k by validation accuracy
+% [x] Standardize features before KNN
+% [x] Overfitting vs. underfitting
+% [x] Bias-variance decomposition: error = noise + bias^2 + variance
+% ----
 
 \subsection*{Supervised vs.\ Unsupervised Learning}
 \textbf{Supervised learning}: every example comes with the right answer (label), e.g.\ houses \emph{with} their sale prices, and we learn to predict the price of a new house.

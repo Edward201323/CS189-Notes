@@ -1,11 +1,12 @@
 % ===== backpropagation =====
-% CS189 Lecture 13
 \section*{Backpropagation}
-
-\subsection*{Computation Graphs}
-
-\subsection*{Chain Rule on the Graph}
-
-\subsection*{Backward Pass}
-
-\subsection*{Backward Rules for Matrix Operations}
+% ---- CS189 scope checklist: must include ([x] = already covered) ----
+% Source: Lecture 13; Discussion 7; reference sheet p.8
+% [ ] Why: SGD needs the gradient of the loss for every weight
+% [ ] Computation graph (forward pass computes the values)
+% [ ] Chain rule along one path; sum over multiple paths
+% [ ] Backward pass: adjoint a_L = 1, a_i = sum over children a_j dv_j/dv_i
+% [ ] Process nodes in reverse topological order
+% [ ] Matrix rules: C = AB -> G B^T, A^T G; elementwise; bias = G summed over rows
+% [ ] Worked example, e.g. f(x, y, z) = (x + y) z
+% ----

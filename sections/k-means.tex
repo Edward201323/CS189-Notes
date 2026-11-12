@@ -1,5 +1,15 @@
 % ===== k-means =====
 \section*{K-Means Clustering}
+% ---- CS189 scope checklist: must include ([x] = already covered) ----
+% Source: Lecture 2; reference sheet p.4
+% [x] Goal: split N points into K clusters; K is a hyperparameter
+% [x] Objective: sum of squared distances to own center
+% [x] Lloyd's algorithm: assign to nearest center, move center to cluster mean
+% [x] Always converges, but to a local minimum; rerun with random starts
+% [x] Choosing K: domain knowledge, elbow method
+% [ ] Clusters are not labels: they depend on the features chosen
+% [ ] Recognize the sheet's one-hot notation r_nk (same as your z_n)
+% ----
 
 \subsection*{What Clustering Does}
 \textbf{Goal:} split the data into $K$ groups (clusters) of points that are close together. In the unsupervised plot, an algorithm should discover the 2 groups on its own.

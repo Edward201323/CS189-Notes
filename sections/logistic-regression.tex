@@ -1,5 +1,18 @@
 % ===== logistic-regression =====
 \section*{Logistic Regression}
+% ---- CS189 scope checklist: must include ([x] = already covered) ----
+% Source: Lectures 8-9; reference sheet p.7
+% [x] Binary classification; discriminative model
+% [x] Sigmoid
+% [ ] Sigmoid facts: 1 - sigma(a) = sigma(-a), sigma' = sigma(1 - sigma)
+% [x] Why not least squares on 0/1 labels
+% [ ] Log-odds (logit): one more unit of x multiplies the odds by e^{w_1}
+% [x] Cross-entropy loss (from the Bernoulli likelihood); convex
+% [x] Gradient sum (y_n - t_n) x_n; no closed form, so gradient descent
+% [x] Threshold; the decision boundary is linear
+% [x] Separable data -> weights diverge; fix with regularization
+% [ ] Multiclass: one-vs-rest, one-vs-one, softmax
+% ----
 
 \subsection*{What Logistic Regression Does}
 Logistic regression is similar to linear regression, except it predicts the \textbf{probability} that something is true (a number between 0 and 1) rather than an unbounded real-valued quantity.

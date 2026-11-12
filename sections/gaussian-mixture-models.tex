@@ -1,13 +1,14 @@
 % ===== gaussian-mixture-models =====
-% CS189 Lecture 5
 \section*{Gaussian Mixture Models (GMM)}
-
-\subsection*{The Gaussian and Its MLE}
-
-\subsection*{Why One Gaussian Isn't Enough}
-
-\subsection*{The Mixture Model}
-
-\subsection*{EM Algorithm}
-
-\subsection*{GMM vs.\ K-Means}
+% ---- CS189 scope checklist: must include ([x] = already covered) ----
+% Source: Lecture 5; reference sheet pp.4-5
+% [ ] Gaussian N(mu, sigma^2) and multivariate N(mu, Sigma)
+% [ ] Why mixtures: one Gaussian can't fit data with several bumps
+% [ ] Model p(x) = sum_k pi_k N(x; mu_k, Sigma_k), with the pi_k summing to 1
+% [ ] Latent assignment z_n; generative model (sample z, then x given z)
+% [ ] Log of a sum has no closed form -> use EM
+% [ ] E-step: responsibilities gamma_nk
+% [ ] M-step: N_k, pi_k, mu_k, Sigma_k updates
+% [ ] EM never lowers the likelihood; converges to a local optimum
+% [ ] GMM vs. K-means: soft vs. hard assignments
+% ----

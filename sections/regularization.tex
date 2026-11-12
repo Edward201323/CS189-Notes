@@ -1,5 +1,18 @@
 % ===== regularization =====
 \section*{Regularization}
+% ---- CS189 scope checklist: must include ([x] = already covered) ----
+% Source: Lecture 7; reference sheet pp.5-6
+% [x] Loss + lambda x penalty; lambda trades fit for small weights
+% [x] Example: too small, just right, and too big a lambda
+% [ ] Overfit models have huge weights
+% [ ] Constraint view: minimize the error subject to Reg(w) <= C
+% [ ] Norms: L1, L2, Lp
+% [ ] Ridge: objective and closed form (X^T X + lambda I)^{-1} X^T t; also fixes a non-invertible X^T X
+% [ ] Lasso: sets some weights exactly to 0; no closed form
+% [ ] Geometry: L1 diamond vs. L2 circle (why lasso zeroes weights)
+% [ ] Choose lambda on the validation set
+% [ ] MAP view of ridge and lasso
+% ----
 
 \subsection*{What Regularization Does}
 

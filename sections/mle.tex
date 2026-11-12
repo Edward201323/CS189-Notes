@@ -1,5 +1,16 @@
 % ===== mle =====
 \section*{Maximum Likelihood Estimation (MLE)}
+% ---- CS189 scope checklist: must include ([x] = already covered) ----
+% Source: Lectures 4-5, 7; reference sheet p.4
+% [x] Probability vs. likelihood
+% [x] MLE in 3 steps: IID product, log, set derivative to 0
+% [x] Bernoulli MLE = n_1 / N
+% [ ] Gaussian MLE: mu = sample mean, sigma^2 = (1/N) sum (x_n - mu)^2
+% [ ] The MLE variance is biased; 1/(N-1) fixes it; bias vanishes for large N
+% [x] Least squares = MLE with Gaussian noise
+% [x] Noise model -> loss (Laplace noise -> absolute error)
+% [ ] MLE uses only the data, so it can overfit (motivates MAP)
+% ----
 
 \subsection*{Probability vs.\ Likelihood}
 \textbf{Setup:} data $\mathcal{D} = \{x_1, \dots, x_N\}$ from a model $p(x \mid \theta)$, where $\theta$ = the model's parameters.

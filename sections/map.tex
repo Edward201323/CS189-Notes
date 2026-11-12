@@ -1,9 +1,10 @@
 % ===== map =====
-% CS189 Lecture 5 (and priors in Lecture 7)
 \section*{Maximum a Posteriori (MAP)}
-
-\subsection*{Prior, Likelihood, Posterior}
-
-\subsection*{The Beta Prior (Coin Example)}
-
-\subsection*{MAP vs.\ MLE}
+% ---- CS189 scope checklist: must include ([x] = already covered) ----
+% Source: Lectures 5, 7; reference sheet pp.3-4
+% [ ] Bayes' theorem: posterior is proportional to likelihood x prior; p(D) drops out
+% [ ] MAP = argmax [ sum ln p(t_n | x_n, w) + ln p(w) ]
+% [ ] Coin with a Beta(a, b) prior: mu_MAP = (n_1 + a - 1) / (N + a + b - 2)
+% [ ] Small N: the prior wins; large N: MAP -> MLE
+% [ ] The prior acts as a regularizer (Gaussian prior -> ridge, Laplace prior -> lasso)
+% ----

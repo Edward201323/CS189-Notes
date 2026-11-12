@@ -1,5 +1,16 @@
 % ===== linear-regression =====
 \section*{Linear Regression}
+% ---- CS189 scope checklist: must include ([x] = already covered) ----
+% Source: Lectures 6-7; reference sheet pp.5-6
+% [x] Model y = w^T x with dummy feature x_0 = 1 for the bias
+% [ ] Basis functions phi(x): "linear" means linear in the weights, not the features
+% [x] Least-squares loss
+% [x] Design matrix and normal equation w* = (X^T X)^{-1} X^T t, with derivation
+% [ ] Geometry: Xw* is the projection of t onto X's column space; residual is perpendicular to it
+% [ ] When X^T X isn't invertible (N < D+1, collinear features)
+% [ ] Pseudoinverse w* = X^+ t (minimum-norm solution)
+% [ ] Evaluation on the test set: MSE, MAE, residuals
+% ----
 
 \subsection*{What Linear Regression Does}
 \begin{itemize}

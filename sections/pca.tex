@@ -1,5 +1,19 @@
 % ===== pca =====
 \section*{Principal Component Analysis (PCA)}
+% ---- CS189 scope checklist: must include ([x] = already covered) ----
+% Source: Lecture 3; reference sheet pp.5-6
+% [x] Goal: reduce D dimensions to k while keeping the most information
+% [ ] Why: visualization, curse of dimensionality
+% [x] Center the data (and usually standardize each feature)
+% [ ] Covariance matrix Sigma = (1/N) X^T X (same eigenvectors as X^T X, eigenvalues / N)
+% [x] Principal components = top-k eigenvectors; eigenvalue = variance along it
+% [ ] Components are orthogonal unit vectors
+% [x] Projection z_n = W(x_n - mean), reconstruction x_hat = mean + W^T z_n
+% [x] Max variance = min reconstruction error
+% [x] Fraction of variance kept = (top-k eigenvalues) / (sum of all)
+% [ ] PCA via SVD: components = columns of V, lambda_j = s_j^2 / N
+% [ ] Rank of a matrix
+% ----
 
 \subsection*{What PCA Does}
 \textbf{Goal:} reduce unlabeled data from $D$ to $k \ll D$ dimensions (e.g.\ 10{,}000 $\rightarrow$ 100) while losing as little information as possible.
