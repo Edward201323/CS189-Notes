@@ -10,3 +10,240 @@
 % [ ] Matrix rules: C = AB -> G B^T, A^T G; elementwise; bias = G summed over rows
 % [ ] Worked example, e.g. f(x, y, z) = (x + y) z
 % ----
+
+% draws a vertical nudge arrow: \nudge{x}{y}{signed size}{scale}{line width}
+% blue up = increase, red down = decrease, nothing if 0
+\newcommand{\nudge}[5]{%
+  \pgfmathsetmacro{\nudgeL}{#4*(#3)}%
+  \pgfmathsetmacro{\nudgeA}{#2-\nudgeL/2}%
+  \pgfmathsetmacro{\nudgeB}{#2+\nudgeL/2}%
+  \ifdim \nudgeL pt>0.001pt
+    \draw[-stealth, blue!70!black, line width=#5] (#1,\nudgeA) -- (#1,\nudgeB);
+  \else\ifdim \nudgeL pt<-0.001pt
+    \draw[-stealth, red!80!black, line width=#5] (#1,\nudgeA) -- (#1,\nudgeB);
+  \fi\fi}
+
+Backpropagation computes the \textbf{gradient} of the cost, $\nabla E$: one slope per parameter (13{,}002 total). Since $E$ averages over every example, each step depends on every example, so we start with \textit{one}.
+
+\subsection*{Desired Nudges for One Example}
+\begin{keeptogether}
+We continue with the handwritten-digit network from the Neural Networks section. Take one training example: an image of a 2. The network is still untrained, so the outputs are random.
+\begin{itemize}
+  \item We want neuron 2 to go up to 1 and every other neuron to go down to 0.
+  \item Each nudge is proportional to how far that output is from its target, $t_k - \hat{y}_k$.
+  \item We can't change the outputs directly (only weights and biases), but we keep track of these nudges.
+\end{itemize}
+
+{\centering
+\begin{tikzpicture}[>=latex,
+    nrn/.style={circle, draw=blue!70!black, minimum size=6.5pt, inner sep=0pt},
+    onrn/.style={circle, draw=blue!70!black, minimum size=0.5cm, inner sep=0pt, font=\tiny}]
+\pgfmathsetseed{289}
+% ===== panel 1: the untrained network =====
+\node[font=\small\bfseries] at (2.8,3.0) {Untrained network};
+\foreach \y [count=\n] in {2.3,1.8,1.3,-1.3,-1.8,-2.3} \coordinate (a\n) at (0,\y);
+\foreach \y [count=\n] in {1.9,1.3,0.7,-0.7,-1.3,-1.9} \coordinate (b\n) at (1.7,\y);
+\foreach \y [count=\n] in {1.9,1.3,0.7,-0.7,-1.3,-1.9} \coordinate (c\n) at (3.4,\y);
+\foreach \i in {1,...,6} \foreach \j in {1,...,6} {
+  \pgfmathsetmacro{\r}{rnd}\pgfmathsetmacro{\o}{0.15+0.55*rnd}
+  \ifdim\r pt<0.5pt \draw[blue!60, opacity=\o] (a\i) -- (b\j); \else \draw[red!70, opacity=\o] (a\i) -- (b\j); \fi
+  \pgfmathsetmacro{\r}{rnd}\pgfmathsetmacro{\o}{0.15+0.55*rnd}
+  \ifdim\r pt<0.5pt \draw[blue!60, opacity=\o] (b\i) -- (c\j); \else \draw[red!70, opacity=\o] (b\i) -- (c\j); \fi}
+\foreach \i in {1,...,6} \foreach \k in {0,...,9} {
+  \pgfmathsetmacro{\r}{rnd}\pgfmathsetmacro{\o}{0.15+0.55*rnd}
+  \pgfmathsetmacro{\yk}{2.25-0.5*\k}
+  \ifdim\r pt<0.5pt \draw[blue!60, opacity=\o] (c\i) -- (5.2,\yk); \else \draw[red!70, opacity=\o] (c\i) -- (5.2,\yk); \fi}
+\foreach \n/\s in {1/0,2/0,3/30,4/60,5/0,6/10} \node[nrn, fill=blue!\s] at (a\n) {};
+\node at (0,0.1) {$\vdots$};
+\foreach \n/\s in {1/0,2/90,3/10,4/50,5/80,6/0} \node[nrn, fill=blue!\s] at (b\n) {};
+\node at (1.7,0.1) {$\vdots$};
+\foreach \n/\s in {1/80,2/40,3/20,4/70,5/0,6/30} \node[nrn, fill=blue!\s] at (c\n) {};
+\node at (3.4,0.1) {$\vdots$};
+\foreach \k/\v in {0/0.5, 1/0.8, 2/0.2, 3/1.0, 4/0.4, 5/0.6, 6/1.0, 7/0.0, 8/0.2, 9/0.1} {
+  \pgfmathsetmacro{\y}{2.25-0.5*\k}
+  \pgfmathsetmacro{\s}{50*\v}
+  \node[onrn, fill=blue!\s] at (5.45,\y) {\v};
+  \node[font=\scriptsize, anchor=west] at (5.75,\y) {\k};
+}
+\node[font=\scriptsize] at (0,-2.75) {784};
+\node[font=\scriptsize] at (1.7,-2.75) {16};
+\node[font=\scriptsize] at (3.4,-2.75) {16};
+\node[font=\scriptsize, align=center] at (5.45,-2.85) {random\\output};
+\node[font=\scriptsize, anchor=east] at (-0.2,0.1) {a 2 $\to$};
+% ===== panel 2: wished-for nudges =====
+\node[font=\Large, gray] at (6.75,0) {$\Rightarrow$};
+\begin{scope}[shift={(7.6,0)}]
+\node[font=\small\bfseries] at (1.2,3.0) {Wished-for nudges};
+\foreach \k/\v/\n in {0/0.5/-0.5, 1/0.8/-0.8, 2/0.2/0.8, 3/1.0/-1.0, 4/0.4/-0.4, 5/0.6/-0.6, 6/1.0/-1.0, 7/0.0/0, 8/0.2/-0.2, 9/0.1/-0.1} {
+  \pgfmathsetmacro{\y}{2.25-0.5*\k}
+  \pgfmathsetmacro{\s}{50*\v}
+  \node[onrn, fill=blue!\s] at (0,\y) {\v};
+  \nudge{0.5}{\y}{\n}{0.48}{1.1pt}
+  \node[font=\scriptsize, anchor=west] at (0.65,\y) {\k};
+  \node[onrn] at (2.3,\y) {};
+}
+\node[onrn, draw=green!50!black, fill=green!50!black] at (2.3,1.25) {};
+\node[font=\scriptsize, blue!70!black, anchor=west] at (0.95,1.25) {$+0.8$};
+\node[font=\scriptsize, red!80!black, anchor=west] at (0.95,-1.75) {$-0.2$};
+\node[font=\scriptsize] at (0,-2.85) {output};
+\node[font=\scriptsize] at (2.3,-2.85) {target};
+\end{scope}
+\end{tikzpicture}
+\par}
+{\centering\scriptsize Neuron 2's $+0.8$ matters more than neuron 8's $-0.2$.\par}
+\end{keeptogether}
+
+\subsection*{Adjusting One Neuron}
+\begin{keeptogether}
+Zoom in on neuron 2:
+\[
+\hat{y}_2 = \sigma\big(w_1 h_1 + w_2 h_2 + \cdots + w_n h_n + b\big)
+\]
+There are three ways to raise it:
+\begin{enumerate}
+  \item Increase the bias $b$.
+  \item Increase the weights $w_j$, \textbf{in proportion to $h_j$}: weights from bright neurons (high $h_j$) matter most.
+  \item Change the activations $h_j$, \textbf{in proportion to $w_j$}: raise $h_j$ if its weight is positive, lower it if negative (bigger $|w_j|$ = bigger change).
+\end{enumerate}
+
+Example for neuron 2, with 3 neurons in the previous layer (bias fixed at $b = -1.19$):
+
+{\centering
+\begin{tikzpicture}[pnrn/.style={circle, draw=blue!70!black, minimum size=0.55cm, inner sep=0pt, font=\tiny}]
+\node[font=\small\bfseries, anchor=west] at (-0.9,2.05) {Way 2: nudge the weights ($\propto h_j$)};
+\node[font=\small\bfseries, anchor=west] at (-0.9,-2.35) {Way 3: nudge the activations ($\propto w_j$)};
+\begin{scope}[shift={(0,0)}]
+\node[font=\scriptsize\bfseries] at (1.15,1.35) {Before};
+\node[pnrn, fill=blue!45, text=black] (n1) at (0,0.8) {0.9};
+\node[pnrn, fill=blue!5, text=black] (n2) at (0,0) {0.1};
+\node[pnrn, fill=blue!35, text=black] (n3) at (0,-0.8) {0.7};
+\node[pnrn, minimum size=0.65cm, fill=blue!10, text=black] (o) at (2.3,0) {0.20};
+\draw[blue!70!black, line width=1.4pt] (n1) -- node[above, sloped, font=\tiny, fill=white, inner sep=1pt, text=black] {$+2$} (o);
+\draw[blue!70!black, line width=0.8pt] (n2) -- node[above, pos=0.42, font=\tiny, fill=white, inner sep=1pt, text=black] {$+1$} (o);
+\draw[red!80!black, line width=2pt] (n3) -- node[below, sloped, font=\tiny, fill=white, inner sep=1pt, text=black] {$-3$} (o);
+\node[font=\scriptsize, align=center] at (1.15,-1.45) {sum $= -0.20$\\$\hat{y}_2 = 0.20$};
+
+\end{scope}
+\begin{scope}[shift={(5,0)}]
+\node[font=\scriptsize\bfseries] at (1.15,1.35) {Nudge};
+\node[pnrn, fill=blue!45, text=black] (n1) at (0,0.8) {0.9};
+\node[pnrn, fill=blue!5, text=black] (n2) at (0,0) {0.1};
+\node[pnrn, fill=blue!35, text=black] (n3) at (0,-0.8) {0.7};
+\node[pnrn, minimum size=0.65cm, fill=blue!10, text=black] (o) at (2.3,0) {0.20};
+\draw[green!50!black, line width=2.7pt] (n1) -- node[above, sloped, font=\tiny, fill=white, inner sep=1pt, text=green!50!black] {$+0.09$} (o);
+\draw[green!50!black, line width=0.4pt] (n2) -- node[above, pos=0.42, font=\tiny, fill=white, inner sep=1pt, text=green!50!black] {$+0.01$} (o);
+\draw[green!50!black, line width=2.1pt] (n3) -- node[below, sloped, font=\tiny, fill=white, inner sep=1pt, text=green!50!black] {$+0.07$} (o);
+\node[font=\scriptsize, align=center] at (1.15,-1.45) {bright $h_j$ $\to$\\bigger nudge};
+\nudge{2.85}{0}{1}{0.5}{1.2pt}
+\end{scope}
+\begin{scope}[shift={(10,0)}]
+\node[font=\scriptsize\bfseries] at (1.15,1.35) {After};
+\node[pnrn, fill=blue!45, text=black] (n1) at (0,0.8) {0.9};
+\node[pnrn, fill=blue!5, text=black] (n2) at (0,0) {0.1};
+\node[pnrn, fill=blue!35, text=black] (n3) at (0,-0.8) {0.7};
+\node[pnrn, minimum size=0.65cm, fill=blue!11, draw=green!50!black, very thick, text=black] (o) at (2.3,0) {0.22};
+\draw[blue!70!black, line width=1.4pt] (n1) -- node[above, sloped, font=\tiny, fill=white, inner sep=1pt, text=green!50!black] {$+2.09$} (o);
+\draw[blue!70!black, line width=0.8pt] (n2) -- node[above, pos=0.42, font=\tiny, fill=white, inner sep=1pt, text=green!50!black] {$+1.01$} (o);
+\draw[red!80!black, line width=2pt] (n3) -- node[below, sloped, font=\tiny, fill=white, inner sep=1pt, text=green!50!black] {$-2.93$} (o);
+\node[font=\scriptsize, align=center] at (1.15,-1.45) {sum $= -0.07$\\$\hat{y}_2 = 0.22$ (up)};
+
+\end{scope}
+\begin{scope}[shift={(0,-4.4)}]
+\node[font=\scriptsize\bfseries] at (1.15,1.35) {Before};
+\node[pnrn, fill=blue!45, text=black] (n1) at (0,0.8) {0.9};
+\node[pnrn, fill=blue!5, text=black] (n2) at (0,0) {0.1};
+\node[pnrn, fill=blue!35, text=black] (n3) at (0,-0.8) {0.7};
+\node[pnrn, minimum size=0.65cm, fill=blue!10, text=black] (o) at (2.3,0) {0.20};
+\draw[blue!70!black, line width=1.4pt] (n1) -- node[above, sloped, font=\tiny, fill=white, inner sep=1pt, text=black] {$+2$} (o);
+\draw[blue!70!black, line width=0.8pt] (n2) -- node[above, pos=0.42, font=\tiny, fill=white, inner sep=1pt, text=black] {$+1$} (o);
+\draw[red!80!black, line width=2pt] (n3) -- node[below, sloped, font=\tiny, fill=white, inner sep=1pt, text=black] {$-3$} (o);
+\node[font=\scriptsize, align=center] at (1.15,-1.45) {sum $= -0.20$\\$\hat{y}_2 = 0.20$};
+
+\end{scope}
+\begin{scope}[shift={(5.6,-4.4)}]
+\node[font=\scriptsize\bfseries] at (1.15,1.35) {Nudge};
+\node[pnrn, fill=blue!45, text=black] (n1) at (0,0.8) {0.9};
+\node[pnrn, fill=blue!5, text=black] (n2) at (0,0) {0.1};
+\node[pnrn, fill=blue!35, text=black] (n3) at (0,-0.8) {0.7};
+\node[pnrn, minimum size=0.65cm, fill=blue!10, text=black] (o) at (2.3,0) {0.20};
+\draw[blue!70!black, line width=1.4pt] (n1) -- node[above, sloped, font=\tiny, fill=white, inner sep=1pt, text=black] {$+2$} (o);
+\draw[blue!70!black, line width=0.8pt] (n2) -- node[above, pos=0.42, font=\tiny, fill=white, inner sep=1pt, text=black] {$+1$} (o);
+\draw[red!80!black, line width=2pt] (n3) -- node[below, sloped, font=\tiny, fill=white, inner sep=1pt, text=black] {$-3$} (o);
+\node[font=\scriptsize, align=center] at (1.15,-1.45) {$+$ weight $\to$ raise $h_j$\\$-$ weight $\to$ lower $h_j$};
+\nudge{-0.5}{0.8}{0.1}{4}{1.2pt}
+\nudge{-0.5}{0}{0.05}{4}{1.2pt}
+\nudge{-0.5}{-0.8}{-0.15}{4}{1.2pt}
+\node[font=\tiny, blue!70!black, anchor=east] at (-0.65,0.8) {$+0.1$};
+\node[font=\tiny, blue!70!black, anchor=east] at (-0.65,0) {$+0.05$};
+\node[font=\tiny, red!80!black, anchor=east] at (-0.65,-0.8) {$-0.15$};
+\nudge{2.85}{0}{1}{0.5}{1.2pt}
+\end{scope}
+\begin{scope}[shift={(10.6,-4.4)}]
+\node[font=\scriptsize\bfseries] at (1.15,1.35) {After};
+\node[pnrn, fill=blue!50, draw=green!50!black, very thick, text=black] (n1) at (0,0.8) {1.0};
+\node[pnrn, fill=blue!8, draw=green!50!black, very thick, text=black] (n2) at (0,0) {0.15};
+\node[pnrn, fill=blue!28, draw=green!50!black, very thick, text=black] (n3) at (0,-0.8) {0.55};
+\node[pnrn, minimum size=0.65cm, fill=blue!17, draw=green!50!black, very thick, text=black] (o) at (2.3,0) {0.33};
+\draw[blue!70!black, line width=1.4pt] (n1) -- node[above, sloped, font=\tiny, fill=white, inner sep=1pt, text=black] {$+2$} (o);
+\draw[blue!70!black, line width=0.8pt] (n2) -- node[above, pos=0.42, font=\tiny, fill=white, inner sep=1pt, text=black] {$+1$} (o);
+\draw[red!80!black, line width=2pt] (n3) -- node[below, sloped, font=\tiny, fill=white, inner sep=1pt, text=black] {$-3$} (o);
+\node[font=\scriptsize, align=center] at (1.15,-1.45) {sum $= 0.50$\\$\hat{y}_2 = 0.33$ (up)};
+
+\end{scope}
+\node[font=\Large, gray] at (3.35,0) {$\Rightarrow$};
+\node[font=\Large, gray] at (3.25,-4.4) {$\Rightarrow$};
+\node[font=\Large, gray] at (8.35,0) {$\Rightarrow$};
+\node[font=\Large, gray] at (8.95,-4.4) {$\Rightarrow$};
+\end{tikzpicture}
+\par}
+Both make neuron 2 brighter: the products $w_j h_j$ change on purpose, each nudge pushing the sum up. The same nudge to $w_1$ helps $9\times$ more than to $w_2$, since $h_1$ is $9\times$ brighter.
+\end{keeptogether}
+
+\subsection*{Propagating the Nudges Backwards}
+\begin{keeptogether}
+Every output neuron has its own wishes for the previous layer. Add them all up, weighted by the connecting weight and how much each output needs to change:
+\[
+\text{nudge to } h_j \;\propto\; \sum_{k=0}^{9} W_{kj}\,(t_k - \hat{y}_k) \qquad (W_{kj} = \text{weight from } h_j \text{ into output } k)
+\]
+(ignoring the sigmoid's slope for now)
+
+{\centering
+\begin{tikzpicture}[>=latex,
+    nrn/.style={circle, draw=blue!70!black, minimum size=7pt, inner sep=0pt},
+    hnrn/.style={circle, draw=blue!70!black, minimum size=0.5cm, inner sep=0pt}]
+\foreach \k in {0,...,9} {
+  \pgfmathsetmacro{\y}{2.07-0.46*\k}
+  \coordinate (o\k) at (7.8,\y);
+}
+% hidden layer: each row = wishes from outputs 0, 1, 2, ..., then the total
+\foreach \r/\y/\a/\b/\c/\t in {1/2/-0.3/0.2/0.5/0.4, 2/1/0.2/-0.4/-0.2/-0.6, 3/0/-0.1/0.3/0.6/0.8, 4/-1/0.4/-0.2/-0.5/-0.3, 5/-2/-0.2/-0.3/0.4/-0.5} {
+  \coordinate (h\r) at (4.6,\y);
+  \nudge{0}{\y}{\a}{0.9}{0.9pt}
+  \node[font=\small] at (0.4,\y) {$+$};
+  \nudge{0.8}{\y}{\b}{0.9}{0.9pt}
+  \node[font=\small] at (1.2,\y) {$+$};
+  \nudge{1.6}{\y}{\c}{0.9}{0.9pt}
+  \node[font=\small] at (2.5,\y) {$+\ \cdots\ =$};
+  \nudge{3.3}{\y}{\t}{0.9}{1.8pt}
+}
+\foreach \r in {1,...,5} \foreach \k in {0,...,9} \draw[gray!30] (h\r) -- (o\k);
+\foreach \r/\s in {1/80,2/30,3/60,4/10,5/45} \node[hnrn, fill=blue!\s] at (h\r) {};
+\foreach \k/\v/\n in {0/0.5/-0.5, 1/0.8/-0.8, 2/0.2/0.8, 3/1.0/-1.0, 4/0.4/-0.4, 5/0.6/-0.6, 6/1.0/-1.0, 7/0.0/0, 8/0.2/-0.2, 9/0.1/-0.1} {
+  \pgfmathsetmacro{\y}{2.07-0.46*\k}
+  \pgfmathsetmacro{\s}{50*\v}
+  \node[nrn, fill=blue!\s] at (o\k) {};
+  \nudge{8.1}{\y}{\n}{0.4}{1pt}
+  \node[font=\scriptsize, anchor=west] at (8.25,\y) {\k};
+}
+\foreach \x/\k in {0/0, 0.8/1, 1.6/2} \node[font=\scriptsize] at (\x,2.75) {$\hat{y}_{\k}$};
+\node[font=\scriptsize, anchor=east] at (-0.3,2.75) {wish from};
+\node[font=\scriptsize] at (3.3,2.75) {total};
+\draw[<-, very thick, gray] (5,2.75) -- (7.6,2.75);
+\node[font=\scriptsize, gray, anchor=south] at (6.3,2.8) {nudges flow backwards};
+\node[font=\scriptsize] at (4.6,-2.75) {second-to-last layer};
+\node[font=\scriptsize] at (7.9,-2.75) {output};
+\end{tikzpicture}
+\par}
+\end{keeptogether}
+
+Repeat the same process on that layer, then the one before it, moving backwards through the network.
