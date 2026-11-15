@@ -26,8 +26,8 @@ Input: a $28 \times 28$ grayscale image $\mathbf{x}$. Output: which of $K = 10$ 
 \end{itemize}
 
 {\centering
-\begin{tikzpicture}[x=1cm, y=0.3cm,
-    nrn/.style={circle, draw=blue!70!black, minimum size=6pt, inner sep=0pt}]
+\begin{tikzpicture}[x=1cm, y=0.38cm,
+    nrn/.style={circle, draw=blue!70!black, minimum size=6.5pt, inner sep=0pt}]
 \foreach \a in {4.5,3.5,2.5,-2.5,-3.5,-4.5}
   \foreach \b in {3.5,2.5,1.5,-1.5,-2.5,-3.5}
     \draw[gray!30] (0,\a) -- (3,\b);
@@ -48,7 +48,7 @@ Input: a $28 \times 28$ grayscale image $\mathbf{x}$. Output: which of $K = 10$ 
 \node at (6,0.1) {$\vdots$};
 \foreach \d [evaluate=\d as \y using 4.5-\d] in {0,...,8}
   \node[nrn, fill=blue!5] at (9,\y) {};
-\node[nrn, fill=green!50!black] at (9,-4.5) {};
+\node[nrn, draw=green!50!black, fill=green!50!black] at (9,-4.5) {};
 \foreach \d [evaluate=\d as \y using 4.5-\d] in {0,...,9}
   \node[font=\scriptsize, anchor=west] at (9.12,\y) {\d};
 \node[font=\scriptsize, green!50!black, anchor=west] at (9.35,-4.5) {$\leftarrow$ answer: 9};
@@ -65,13 +65,9 @@ Input: a $28 \times 28$ grayscale image $\mathbf{x}$. Output: which of $K = 10$ 
 
 {\centering
 \begin{tikzpicture}[x=1cm, y=1cm]
-\begin{scope}[x=0.17cm, y=0.17cm]
-\fill[black!85] (0,0) rectangle (7,9);
-\foreach \c/\r in {2/8,3/8,4/8, 1/7,5/7, 1/6,5/6, 2/5,3/5,4/5,5/5, 5/4, 5/3, 5/2, 5/1, 4/0}
-  \fill[white] (\c,\r) rectangle ++(1,1);
-\draw[black!60, very thin, step=1] (0,0) grid (7,9);
-\end{scope}
-\node[font=\scriptsize] at (0.6,-0.25) {pixels};
+\draw[line width=2.2pt, black!75, line cap=round] (0.55,1.1) circle (0.32);
+\draw[line width=2.2pt, black!75, line cap=round] (0.87,1.15) .. controls (0.9,0.6) .. (0.7,0.1);
+\node[font=\scriptsize] at (0.6,-0.25) {image};
 \draw[-latex, thick, gray] (1.45,0.77) -- (2.05,0.77);
 \begin{scope}[shift={(2.8,0)}]
 \foreach \a in {0,60,...,300}
@@ -98,7 +94,7 @@ Input: a $28 \times 28$ grayscale image $\mathbf{x}$. Output: which of $K = 10$ 
 How does one neuron's activation come from the previous layer?
 
 \begin{keeptogether}
-\textbf{Example: detecting an edge.} Say we want one neuron to light up only when the image has a short horizontal edge in one specific spot (like the middle bar of a 3). Give the neuron one \textbf{weight} per pixel, and draw the weights as a grid in the same layout as the image:
+For example, say we want one neuron to detect an edge: light up only when the image has a short horizontal edge in one specific spot (like the middle bar of a 3). Give the neuron one \textbf{weight} per pixel, and draw the weights as a grid in the same layout as the image:
 \begin{itemize}
   \item \textbf{Green} ($w = +1$): the 5 pixels where the edge should be. A bright pixel here \textbf{adds} to the sum.
   \item \textbf{Red} ($w = -1$): the 10 pixels just above and below. A bright pixel here \textbf{subtracts} from the sum.
@@ -106,37 +102,25 @@ How does one neuron's activation come from the previous layer?
 \end{itemize}
 
 {\centering
-\begin{tikzpicture}[x=0.26cm, y=0.26cm]
-% weights
+\begin{tikzpicture}[x=0.28cm, y=0.28cm]
+% weights: gray = 0, green = +1, red = -1
 \begin{scope}
-\foreach \c in {1,...,5} \fill[green!50!black] (\c,3) rectangle ++(1,1);
-\foreach \c in {1,...,5} \fill[red!80!black] (\c,2) rectangle ++(1,1);
-\foreach \c in {1,...,5} \fill[red!80!black] (\c,4) rectangle ++(1,1);
-\draw[gray!30, step=1] (0,0) grid (7,7);
+\foreach \c in {0,...,6} \foreach \r in {0,...,6} {\fill[gray!15, rounded corners=0.6pt] (\c+0.08,\r+0.08) rectangle ++(0.84,0.84);}
+\foreach \c in {1,...,5} {\fill[green!50!black, rounded corners=0.6pt] (\c+0.08,3+0.08) rectangle ++(0.84,0.84);}
+\foreach \c in {1,...,5} \foreach \r in {2,4} {\fill[red!80!black, rounded corners=0.6pt] (\c+0.08,\r+0.08) rectangle ++(0.84,0.84);}
 \node[font=\small\bfseries] at (3.5,8) {Weights};
 \end{scope}
-% clear line
-\begin{scope}[shift={(11,0)}]
-\fill[black!85] (0,0) rectangle (7,7);
-\foreach \c in {1,...,5} \fill[white] (\c,3) rectangle ++(1,1);
-\draw[black!60, very thin, step=1] (0,0) grid (7,7);
-\node[font=\small\bfseries] at (3.5,8) {Clear edge};
-\end{scope}
-% faint line
-\begin{scope}[shift={(20,0)}]
-\fill[black!85] (0,0) rectangle (7,7);
-\foreach \c in {1,...,5} \fill[white!40!black] (\c,3) rectangle ++(1,1);
-\draw[black!60, very thin, step=1] (0,0) grid (7,7);
-\node[font=\small\bfseries] at (3.5,8) {Faint edge};
-\end{scope}
-% white blob
-\begin{scope}[shift={(29,0)}]
-\fill[black!85] (0,0) rectangle (7,7);
-\foreach \r in {2,3,4} \foreach \c in {1,...,5} \fill[white] (\c,\r) rectangle ++(1,1);
-\draw[black!60, very thin, step=1] (0,0) grid (7,7);
-\node[font=\small\bfseries] at (3.5,8) {White blob};
-\end{scope}
-\node[font=\scriptsize] at (21.5,-1) {three input images (white $= 1$, black $= 0$, faint $= 0.4$)};
+% images: dark tile = 0, white tile = 1, gray tile = 0.4
+\foreach \sx/\name/\kind in {11/Clear edge/clear, 20/Faint edge/faint, 29/White blob/blob} {
+\begin{scope}[shift={(\sx,0)}]
+\fill[black!80, rounded corners=1.5pt] (0,0) rectangle (7,7);
+\foreach \c in {0,...,6} \foreach \r in {0,...,6} {\fill[black!65, rounded corners=0.6pt] (\c+0.08,\r+0.08) rectangle ++(0.84,0.84);}
+\node[font=\small\bfseries] at (3.5,8) {\name};
+\end{scope}}
+\foreach \c in {1,...,5} {\fill[white, rounded corners=0.6pt] (11+\c+0.08,3+0.08) rectangle ++(0.84,0.84);}
+\foreach \c in {1,...,5} {\fill[gray!75, rounded corners=0.6pt] (20+\c+0.08,3+0.08) rectangle ++(0.84,0.84);}
+\foreach \c in {1,...,5} \foreach \r in {2,3,4} {\fill[white, rounded corners=0.6pt] (29+\c+0.08,\r+0.08) rectangle ++(0.84,0.84);}
+\node[font=\scriptsize] at (21.5,-1) {three input images (white $= 1$, black $= 0$, gray $= 0.4$)};
 \end{tikzpicture}
 \par}
 \end{keeptogether}
@@ -208,15 +192,15 @@ With $b = -3$:
 \end{keeptogether}
 
 \begin{keeptogether}
-\textbf{Putting it together.} That's all a neuron does. Every neuron works this way with its own weights and bias, and its inputs $x_1, \dots, x_D$ are the activations of every neuron in the previous layer:
+That's all a neuron does. Every neuron works this way with its own weights and bias (its \textbf{parameters}), and its inputs $x_1, \dots, x_D$ are the activations of every neuron in the previous layer:
 
 {\centering
 \begin{tikzpicture}[x=1cm, y=1cm, >=latex,
     inp/.style={circle, draw=blue!70!black, fill=blue!10, minimum size=0.6cm, inner sep=0pt, font=\scriptsize}]
-\node[inp] (x1) at (0,0.95) {$x_1$};
-\node[inp] (x2) at (0,0.3) {$x_2$};
+\node[inp, fill=blue!35] (x1) at (0,0.95) {$x_1$};
+\node[inp, fill=blue!10] (x2) at (0,0.3) {$x_2$};
 \node at (0,-0.25) {$\vdots$};
-\node[inp] (xD) at (0,-0.95) {$x_D$};
+\node[inp, fill=blue!22] (xD) at (0,-0.95) {$x_D$};
 \node[circle, draw, thick, minimum size=1cm, font=\small] (sum) at (3,0) {$\sum + b$};
 \draw[->, thick, gray] (x1) -- node[pos=0.3, above, font=\scriptsize, black] {$w_1$} (sum);
 \draw[->, thick, gray] (x2) -- node[pos=0.3, above, font=\scriptsize, black] {$w_2$} (sum);
@@ -246,8 +230,8 @@ A layer is $M$ neurons, and \textbf{every neuron connects to every neuron in the
 \begin{tikzpicture}[>=latex,
     nrn/.style={circle, draw=blue!70!black, fill=blue!10, minimum size=0.55cm, inner sep=0pt, font=\scriptsize}]
 % ---- network view ----
-\foreach \n/\y in {1/1.8, 2/1.1, 3/0.4, D/-1.3}
-  \node[nrn] (x\n) at (0,\y) {$x_{\n}$};
+\foreach \n/\y/\f in {1/1.8/30, 2/1.1/10, 3/0.4/22, D/-1.3/15}
+  \node[nrn, fill=blue!\f] (x\n) at (0,\y) {$x_{\n}$};
 \node at (0,-0.4) {$\vdots$};
 \node[nrn] (z1) at (2.6,1.6) {$z_1$};
 \node[nrn, draw=green!50!black, fill=green!50!black!25, thick] (zi) at (2.6,0.6) {$z_i$};
@@ -289,7 +273,7 @@ z_i = \sum_{j=1}^{D} W_{ij}\, x_j + b_i \qquad (W_{ij} = \text{weight into neuro
 \end{keeptogether}
 
 \begin{keeptogether}
-\textbf{The whole layer at once.} A layer with $D$ inputs and $M$ units (digit net, first hidden layer: $D = 784$, $M = 16$):
+Writing out the whole layer at once, for a layer with $D$ inputs and $M$ units (digit net, first hidden layer: $D = 784$, $M = 16$):
 \[
 \underbrace{\begin{bmatrix}
 W_{11} & \cdots & W_{1D} \\
@@ -338,11 +322,231 @@ Each layer has $D_{\text{out}}(D_{\text{in}} + 1)$ parameters (weights + biases)
 = 13{,}002 \text{ parameters}
 \]
 
+Changing these weights and biases changes what the network actually does.
+
 \subsection*{The Network Is Just a Function}
 \begin{keeptogether}
 Each neuron takes in the previous layer's outputs and spits out one number. Chain the layers and the whole network is one (very complicated) function: 784 numbers in, 10 numbers out, 13{,}002 parameters.
 \[
 \hat{\mathbf{y}} = \sigma\Big(\mathbf{W}^{(3)}\, \sigma\big(\mathbf{W}^{(2)}\, \underbrace{\sigma(\mathbf{W}^{(1)}\mathbf{x} + \mathbf{b}^{(1)})}_{\text{hidden layer 1}} + \mathbf{b}^{(2)}\big) + \mathbf{b}^{(3)}\Big)
 \]
+\end{keeptogether}
+
+\subsection*{The Cost Function}
+\begin{keeptogether}
+Our network starts with completely \textbf{random} parameters (weights and biases). When we input an image of a 3, and the output layer is a mess. What we \textit{want} is 0 for every output neuron except neuron 3, where we want 1.
+
+{\centering
+\begin{tikzpicture}[>=latex,
+    nrn/.style={circle, draw=blue!70!black, minimum size=6.5pt, inner sep=0pt}]
+\pgfmathsetseed{189}
+\node[font=\scriptsize, align=center, anchor=east] at (1.75,0) {input:\\a 3};
+% layers (positions)
+\foreach \y [count=\n] in {2.1,1.6,1.1,-1.1,-1.6,-2.1} \coordinate (a\n) at (2.1,\y);
+\foreach \y [count=\n] in {1.75,1.15,0.55,-0.55,-1.15,-1.75} \coordinate (b\n) at (3.8,\y);
+\foreach \y [count=\n] in {1.75,1.15,0.55,-0.55,-1.15,-1.75} \coordinate (c\n) at (5.5,\y);
+% random-weight edges: blue = positive, red = negative
+\foreach \i in {1,...,6} \foreach \j in {1,...,6} {
+  \pgfmathsetmacro{\r}{rnd}\pgfmathsetmacro{\o}{0.15+0.6*rnd}
+  \ifdim\r pt<0.5pt \draw[blue!60, opacity=\o] (a\i) -- (b\j); \else \draw[red!70, opacity=\o] (a\i) -- (b\j); \fi
+  \pgfmathsetmacro{\r}{rnd}\pgfmathsetmacro{\o}{0.15+0.6*rnd}
+  \ifdim\r pt<0.5pt \draw[blue!60, opacity=\o] (b\i) -- (c\j); \else \draw[red!70, opacity=\o] (b\i) -- (c\j); \fi}
+\foreach \i in {1,...,6} \foreach \k in {0,...,9} {
+  \pgfmathsetmacro{\r}{rnd}\pgfmathsetmacro{\o}{0.15+0.6*rnd}
+  \pgfmathsetmacro{\yk}{2.25-0.5*\k}
+  \ifdim\r pt<0.5pt \draw[blue!60, opacity=\o] (c\i) -- (7.2,\yk); \else \draw[red!70, opacity=\o] (c\i) -- (7.2,\yk); \fi}
+% neurons
+\foreach \n/\s in {1/0,2/40,3/90,4/0,5/70,6/20} \node[nrn, fill=blue!\s] at (a\n) {};
+\node at (2.1,0.1) {$\vdots$};
+\foreach \n/\s in {1/90,2/10,3/60,4/0,5/80,6/30} \node[nrn, fill=blue!\s] at (b\n) {};
+\node at (3.8,0.1) {$\vdots$};
+\foreach \n/\s in {1/40,2/90,3/10,4/70,5/0,6/50} \node[nrn, fill=blue!\s] at (c\n) {};
+\node at (5.5,0.1) {$\vdots$};
+\node[nrn, fill=blue!43] (o0) at (7.2,2.25) {};
+\node[font=\scriptsize, anchor=west] at (7.38,2.25) {0};
+\node[nrn, fill=blue!28] (o1) at (7.2,1.75) {};
+\node[font=\scriptsize, anchor=west] at (7.38,1.75) {1};
+\node[nrn, fill=blue!19] (o2) at (7.2,1.25) {};
+\node[font=\scriptsize, anchor=west] at (7.38,1.25) {2};
+\node[nrn, fill=blue!88] (o3) at (7.2,0.75) {};
+\node[font=\scriptsize, anchor=west] at (7.38,0.75) {3};
+\node[nrn, fill=blue!72] (o4) at (7.2,0.25) {};
+\node[font=\scriptsize, anchor=west] at (7.38,0.25) {4};
+\node[nrn, fill=blue!1] (o5) at (7.2,-0.25) {};
+\node[font=\scriptsize, anchor=west] at (7.38,-0.25) {5};
+\node[nrn, fill=blue!64] (o6) at (7.2,-0.75) {};
+\node[font=\scriptsize, anchor=west] at (7.38,-0.75) {6};
+\node[nrn, fill=blue!86] (o7) at (7.2,-1.25) {};
+\node[font=\scriptsize, anchor=west] at (7.38,-1.25) {7};
+\node[nrn, fill=blue!99] (o8) at (7.2,-1.75) {};
+\node[font=\scriptsize, anchor=west] at (7.38,-1.75) {8};
+\node[nrn, fill=blue!63] (o9) at (7.2,-2.25) {};
+\node[font=\scriptsize, anchor=west] at (7.38,-2.25) {9};
+\node[nrn, fill=blue!0] (t0) at (9.4,2.25) {};
+\node[font=\scriptsize, anchor=west] at (9.58,2.25) {0};
+\node[nrn, fill=blue!0] (t1) at (9.4,1.75) {};
+\node[font=\scriptsize, anchor=west] at (9.58,1.75) {1};
+\node[nrn, fill=blue!0] (t2) at (9.4,1.25) {};
+\node[font=\scriptsize, anchor=west] at (9.58,1.25) {2};
+\node[nrn, draw=green!50!black, fill=green!50!black] (t3) at (9.4,0.75) {};
+\node[font=\scriptsize, anchor=west] at (9.58,0.75) {3};
+\node[nrn, fill=blue!0] (t4) at (9.4,0.25) {};
+\node[font=\scriptsize, anchor=west] at (9.58,0.25) {4};
+\node[nrn, fill=blue!0] (t5) at (9.4,-0.25) {};
+\node[font=\scriptsize, anchor=west] at (9.58,-0.25) {5};
+\node[nrn, fill=blue!0] (t6) at (9.4,-0.75) {};
+\node[font=\scriptsize, anchor=west] at (9.58,-0.75) {6};
+\node[nrn, fill=blue!0] (t7) at (9.4,-1.25) {};
+\node[font=\scriptsize, anchor=west] at (9.58,-1.25) {7};
+\node[nrn, fill=blue!0] (t8) at (9.4,-1.75) {};
+\node[font=\scriptsize, anchor=west] at (9.58,-1.75) {8};
+\node[nrn, fill=blue!0] (t9) at (9.4,-2.25) {};
+\node[font=\scriptsize, anchor=west] at (9.58,-2.25) {9};
+\draw[red!80!black, thick] (6.95,2.55) rectangle (7.7,-2.55);
+\node[font=\scriptsize, red!80!black, align=center] at (7.32,-2.95) {starting output};
+\draw[<->, very thick, orange] (7.95,0) -- (9.1,0);
+\node[font=\scriptsize, align=center] at (9.5,-2.95) {target};
+\node[font=\small\bfseries] at (8.4,3.05) {What's the cost of this difference?};
+\node[font=\scriptsize] at (2.1,-2.5) {784};
+\node[font=\scriptsize] at (3.8,-2.5) {16};
+\node[font=\scriptsize] at (5.5,-2.5) {16};
+\node[font=\scriptsize] at (3.8,-3.0) {\textbf{random} weights (blue $+$, red $-$)};
+\end{tikzpicture}
+\par}
+\end{keeptogether}
+
+\begin{keeptogether}
+The \textbf{cost} measures how far the output is from the target. For each output neuron, take the difference (output $-$ target), square it, and add up all 10. This is the \textbf{cost of one training example}:
+\[
+E_n = \sum_{k=0}^{9} \big(\hat{y}_k - t_k\big)^2 \qquad (\hat{y}_k = \text{output},\ t_k = \text{target})
+\]
+
+{\centering
+\begin{tikzpicture}[nrn/.style={circle, draw=blue!70!black, minimum size=6.5pt, inner sep=0pt}]
+\node[font=\scriptsize\bfseries] at (0,0.55) {$k$};
+\node[font=\scriptsize\bfseries] at (1.3,0.55) {output $\hat{y}_k$};
+\node[font=\scriptsize\bfseries] at (3.1,0.55) {target $t_k$};
+\node[font=\scriptsize\bfseries] at (5.4,0.55) {$(\hat{y}_k - t_k)^2$};
+\draw[gray!50] (-0.3,0.3) -- (6.9,0.3);
+\node[font=\scriptsize] at (0,-0.00) {0};
+\node[nrn, fill=blue!43] at (1.0,-0.00) {};
+\node[font=\scriptsize, anchor=west] at (1.25,-0.00) {$0.43$};
+\node[nrn, fill=blue!0] at (2.9,-0.00) {};
+\node[font=\scriptsize, anchor=west] at (3.15,-0.00) {$0$};
+\node[font=\scriptsize, black] at (5.4,-0.00) {$(0.43 - 0)^2 = 0.18$};
+\node[font=\scriptsize] at (0,-0.48) {1};
+\node[nrn, fill=blue!28] at (1.0,-0.48) {};
+\node[font=\scriptsize, anchor=west] at (1.25,-0.48) {$0.28$};
+\node[nrn, fill=blue!0] at (2.9,-0.48) {};
+\node[font=\scriptsize, anchor=west] at (3.15,-0.48) {$0$};
+\node[font=\scriptsize, black] at (5.4,-0.48) {$(0.28 - 0)^2 = 0.08$};
+\node[font=\scriptsize] at (0,-0.96) {2};
+\node[nrn, fill=blue!19] at (1.0,-0.96) {};
+\node[font=\scriptsize, anchor=west] at (1.25,-0.96) {$0.19$};
+\node[nrn, fill=blue!0] at (2.9,-0.96) {};
+\node[font=\scriptsize, anchor=west] at (3.15,-0.96) {$0$};
+\node[font=\scriptsize, black] at (5.4,-0.96) {$(0.19 - 0)^2 = 0.04$};
+\node[font=\scriptsize] at (0,-1.44) {3};
+\node[nrn, fill=blue!88] at (1.0,-1.44) {};
+\node[font=\scriptsize, anchor=west] at (1.25,-1.44) {$0.88$};
+\node[nrn, draw=green!50!black, fill=green!50!black] at (2.9,-1.44) {};
+\node[font=\scriptsize, anchor=west] at (3.15,-1.44) {$1$};
+\node[font=\scriptsize, black] at (5.4,-1.44) {$(0.88 - 1)^2 = 0.01$};
+\node[font=\scriptsize] at (0,-1.92) {4};
+\node[nrn, fill=blue!72] at (1.0,-1.92) {};
+\node[font=\scriptsize, anchor=west] at (1.25,-1.92) {$0.72$};
+\node[nrn, fill=blue!0] at (2.9,-1.92) {};
+\node[font=\scriptsize, anchor=west] at (3.15,-1.92) {$0$};
+\node[font=\scriptsize, red!80!black] at (5.4,-1.92) {$(0.72 - 0)^2 = 0.52$};
+\node[font=\scriptsize] at (0,-2.40) {5};
+\node[nrn, fill=blue!1] at (1.0,-2.40) {};
+\node[font=\scriptsize, anchor=west] at (1.25,-2.40) {$0.01$};
+\node[nrn, fill=blue!0] at (2.9,-2.40) {};
+\node[font=\scriptsize, anchor=west] at (3.15,-2.40) {$0$};
+\node[font=\scriptsize, black] at (5.4,-2.40) {$(0.01 - 0)^2 = 0.00$};
+\node[font=\scriptsize] at (0,-2.88) {6};
+\node[nrn, fill=blue!64] at (1.0,-2.88) {};
+\node[font=\scriptsize, anchor=west] at (1.25,-2.88) {$0.64$};
+\node[nrn, fill=blue!0] at (2.9,-2.88) {};
+\node[font=\scriptsize, anchor=west] at (3.15,-2.88) {$0$};
+\node[font=\scriptsize, red!80!black] at (5.4,-2.88) {$(0.64 - 0)^2 = 0.41$};
+\node[font=\scriptsize] at (0,-3.36) {7};
+\node[nrn, fill=blue!86] at (1.0,-3.36) {};
+\node[font=\scriptsize, anchor=west] at (1.25,-3.36) {$0.86$};
+\node[nrn, fill=blue!0] at (2.9,-3.36) {};
+\node[font=\scriptsize, anchor=west] at (3.15,-3.36) {$0$};
+\node[font=\scriptsize, red!80!black] at (5.4,-3.36) {$(0.86 - 0)^2 = 0.74$};
+\node[font=\scriptsize] at (0,-3.84) {8};
+\node[nrn, fill=blue!99] at (1.0,-3.84) {};
+\node[font=\scriptsize, anchor=west] at (1.25,-3.84) {$0.99$};
+\node[nrn, fill=blue!0] at (2.9,-3.84) {};
+\node[font=\scriptsize, anchor=west] at (3.15,-3.84) {$0$};
+\node[font=\scriptsize, red!80!black] at (5.4,-3.84) {$(0.99 - 0)^2 = 0.98$};
+\node[font=\scriptsize] at (0,-4.32) {9};
+\node[nrn, fill=blue!63] at (1.0,-4.32) {};
+\node[font=\scriptsize, anchor=west] at (1.25,-4.32) {$0.63$};
+\node[nrn, fill=blue!0] at (2.9,-4.32) {};
+\node[font=\scriptsize, anchor=west] at (3.15,-4.32) {$0$};
+\node[font=\scriptsize, red!80!black] at (5.4,-4.32) {$(0.63 - 0)^2 = 0.40$};
+\draw[gray!50] (-0.3,-4.6) -- (6.9,-4.6);
+\node[font=\small] at (5.4,-4.95) {sum $= \mathbf{3.36}$};
+\end{tikzpicture}
+\par}
+{\centering\scriptsize Darker circle = higher activation. Red = the biggest contributors: wrong neurons that are bright (e.g.\ neuron 8 at 0.99).\par}
+\end{keeptogether}
+
+\begin{keeptogether}
+One example isn't enough, so we compute $E_n$ for every training image and take the average. This \textbf{total cost} $E$ measures how good (or bad) the network is overall:
+\[
+E = \frac{1}{N} \sum_{n=1}^{N} E_n
+\]
+\end{keeptogether}
+
+So learning is just finding the parameters that minimize the cost: $\mathbf{w}^* = \arg\min_{\mathbf{w}} E(\mathbf{w})$, where $\mathbf{w}$ holds all 13{,}002 weights and biases.
+
+\subsection*{Learning = Gradient Descent on the Cost}
+\begin{keeptogether}
+Knowing $E$ only tells the network \textit{how bad} it is. We need to tell it \textit{how to change} its parameters to do better. This is just \textbf{gradient descent} (see the Gradient Descent section), but on all 13{,}002 parameters at once. Stack them into one long vector $\mathbf{w}$ and repeat:
+\[
+\mathbf{w} := \mathbf{w} - \eta\, \nabla E(\mathbf{w})
+\]
+Same idea as the Gradient Descent section, shown with \textbf{just 1 weight} $w$ (the other 13{,}001 held fixed). A network's cost is much bumpier than linear regression's bowl, with many valleys, so where the \textbf{random start} lands decides which valley gradient descent rolls into:
+
+{\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.62\linewidth, height=5cm,
+    xmin=-4, xmax=4, ymin=0.85, ymax=3.2,
+    enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xlabel={$w$ (one of the 13{,}002 parameters)}, ylabel={$E(w)$},
+    tick label style={font=\small}, label style={font=\small},
+    xticklabels={}, yticklabels={}
+]
+\addplot[thick, blue, domain=-4:4, samples=200] {0.08*x^2 + 0.45*sin(deg(2.2*x)) + 1.6};
+\addplot[red!80!black, thick, mark=*, mark size=1.4pt] coordinates {
+    (3.400,2.944) (3.083,2.576) (2.606,1.908) (2.165,1.525) (2.026,1.493) (2.000,1.492)
+};
+\addplot[green!50!black, thick, mark=*, mark size=1.4pt] coordinates {
+    (0.550,2.045) (0.397,1.957) (0.152,1.750) (-0.184,1.426) (-0.492,1.222) (-0.627,1.190) (-0.664,1.188)
+};
+\node[font=\scriptsize, red!80!black, anchor=east] at (axis cs:3.3,3.0) {start A};
+\node[font=\scriptsize, red!80!black, anchor=north] at (axis cs:2.0,1.42) {stuck in a local min};
+\node[font=\scriptsize, green!50!black, anchor=south] at (axis cs:0.6,2.1) {start B};
+\node[font=\scriptsize, green!50!black, anchor=north] at (axis cs:-0.66,1.13) {lowest valley};
+\end{axis}
+\end{tikzpicture}
+\par}
+\begin{keeptogether}
+The cost isn't convex, so gradient descent can get stuck like start A, though in practice a big network's local minima are usually nearly as good, and SGD's noise helps it escape shallow ones. A real network runs this same update on all 13{,}002 parameters at once, one slope per parameter:
+\[
+\underbrace{\begin{bmatrix} \textcolor{blue!70!black}{2.25} \\ \textcolor{red!80!black}{-1.57} \\ \textcolor{blue!70!black}{1.98} \\ \vdots \\ \textcolor{red!80!black}{-1.16} \\ \textcolor{blue!70!black}{3.82} \\ \textcolor{blue!70!black}{1.21} \end{bmatrix}}_{\substack{\mathbf{w}:\ \text{all 13{,}002}\\ \text{weights and biases}}}
+\;+\;
+\underbrace{\begin{bmatrix} \textcolor{blue!70!black}{0.18} \\ \textcolor{blue!70!black}{0.45} \\ \textcolor{red!80!black}{-0.51} \\ \vdots \\ \textcolor{blue!70!black}{0.40} \\ \textcolor{red!80!black}{-0.32} \\ \textcolor{blue!70!black}{0.82} \end{bmatrix}}_{\substack{-\nabla E(\mathbf{w}):\ \text{how to}\\ \text{nudge each one}}}
+\;=\;
+\underbrace{\begin{bmatrix} \textcolor{blue!70!black}{2.43} \\ \textcolor{red!80!black}{-1.12} \\ \textcolor{blue!70!black}{1.47} \\ \vdots \\ \textcolor{red!80!black}{-0.76} \\ \textcolor{blue!70!black}{3.50} \\ \textcolor{blue!70!black}{2.03} \end{bmatrix}}_{\substack{\text{new } \mathbf{w}\\ \text{after one step}}}
+\]
+Each slope's sign says which way to nudge that parameter and its size says how much it matters, so the only hard part is computing all 13{,}002 slopes efficiently: that's \textbf{backpropagation} (next).
+\end{keeptogether}
 \end{keeptogether}
 
