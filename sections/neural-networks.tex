@@ -12,7 +12,7 @@
 % ----
 
 \subsection*{Why Neural Networks?}
-Its easy for your brain to recognize a low-resolution 3 as a 3 without effort, even though no two 3's have the same pixels. But try writing a program that takes in a $28 \times 28$ grid of pixels and outputs the digit, and it suddenly becomes very hard. A neural network gets around this by learning from examples.
+It's easy for your brain to recognize a low-resolution 3 as a 3 without effort, even though no two 3's have the same pixels. But try writing a program that takes in a $28 \times 28$ grid of pixels and outputs the digit, and it suddenly becomes very hard. A neural network gets around this by learning from examples.
 
 \subsection*{Running Example: Reading Handwritten Digits}
 \begin{keeptogether}
@@ -334,7 +334,7 @@ Each neuron takes in the previous layer's outputs and spits out one number. Chai
 
 \subsection*{The Cost Function}
 \begin{keeptogether}
-Our network starts with completely \textbf{random} parameters (weights and biases). When we input an image of a 3, and the output layer is a mess. What we \textit{want} is 0 for every output neuron except neuron 3, where we want 1.
+Our network starts with completely \textbf{random} parameters (weights and biases). When we input an image of a 3, the output layer is a mess. What we \textit{want} is 0 for every output neuron except neuron 3, where we want 1.
 
 {\centering
 \begin{tikzpicture}[>=latex,
@@ -550,3 +550,72 @@ Each slope's sign says which way to nudge that parameter and its size says how m
 \end{keeptogether}
 \end{keeptogether}
 
+This is also why neurons use a \textbf{smooth} sigmoid instead of an on/off switch: gradient descent needs the cost to change a little when a weight changes a little, so every slope exists.
+
+\subsection*{What the Trained Network Actually Learned}
+\begin{keeptogether}
+After training, the network classifies about 96\% of new test images correctly. But when we draw the weights into a hidden-layer neuron as a grid like the edge example, they don't look like edges at all:
+
+{\centering
+\begin{tikzpicture}[x=0.28cm, y=0.28cm]
+\foreach \c in {0,...,6} \foreach \r in {0,...,6} {\fill[gray!15, rounded corners=0.6pt] (\c+0.08,\r+0.08) rectangle ++(0.84,0.84);}
+\foreach \c in {1,...,5} {\fill[green!50!black, rounded corners=0.6pt] (\c+0.08,3+0.08) rectangle ++(0.84,0.84);}
+\foreach \c in {1,...,5} \foreach \r in {2,4} {\fill[red!80!black, rounded corners=0.6pt] (\c+0.08,\r+0.08) rectangle ++(0.84,0.84);}
+\node[font=\small\bfseries] at (3.5,8) {What we hoped};
+\node[font=\scriptsize] at (3.5,-1) {a clean edge detector};
+\fill[gray!15, rounded corners=0.6pt] (16+0.08,0+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!41, rounded corners=0.6pt] (16+0.08,1+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!41, rounded corners=0.6pt] (16+0.08,2+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!37, rounded corners=0.6pt] (16+0.08,3+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!57, rounded corners=0.6pt] (16+0.08,4+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!39, rounded corners=0.6pt] (16+0.08,5+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!79, rounded corners=0.6pt] (16+0.08,6+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!55, rounded corners=0.6pt] (17+0.08,0+0.08) rectangle ++(0.84,0.84);
+\fill[gray!15, rounded corners=0.6pt] (17+0.08,1+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!49, rounded corners=0.6pt] (17+0.08,2+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!52, rounded corners=0.6pt] (17+0.08,3+0.08) rectangle ++(0.84,0.84);
+\fill[gray!15, rounded corners=0.6pt] (17+0.08,4+0.08) rectangle ++(0.84,0.84);
+\fill[gray!15, rounded corners=0.6pt] (17+0.08,5+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!39, rounded corners=0.6pt] (17+0.08,6+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!42, rounded corners=0.6pt] (18+0.08,0+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!100, rounded corners=0.6pt] (18+0.08,1+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!55, rounded corners=0.6pt] (18+0.08,2+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!80, rounded corners=0.6pt] (18+0.08,3+0.08) rectangle ++(0.84,0.84);
+\fill[gray!15, rounded corners=0.6pt] (18+0.08,4+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!46, rounded corners=0.6pt] (18+0.08,5+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!43, rounded corners=0.6pt] (18+0.08,6+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!70, rounded corners=0.6pt] (19+0.08,0+0.08) rectangle ++(0.84,0.84);
+\fill[gray!15, rounded corners=0.6pt] (19+0.08,1+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!93, rounded corners=0.6pt] (19+0.08,2+0.08) rectangle ++(0.84,0.84);
+\fill[gray!15, rounded corners=0.6pt] (19+0.08,3+0.08) rectangle ++(0.84,0.84);
+\fill[gray!15, rounded corners=0.6pt] (19+0.08,4+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!66, rounded corners=0.6pt] (19+0.08,5+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!57, rounded corners=0.6pt] (19+0.08,6+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!46, rounded corners=0.6pt] (20+0.08,0+0.08) rectangle ++(0.84,0.84);
+\fill[gray!15, rounded corners=0.6pt] (20+0.08,1+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!39, rounded corners=0.6pt] (20+0.08,2+0.08) rectangle ++(0.84,0.84);
+\fill[gray!15, rounded corners=0.6pt] (20+0.08,3+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!89, rounded corners=0.6pt] (20+0.08,4+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!53, rounded corners=0.6pt] (20+0.08,5+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!53, rounded corners=0.6pt] (20+0.08,6+0.08) rectangle ++(0.84,0.84);
+\fill[gray!15, rounded corners=0.6pt] (21+0.08,0+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!63, rounded corners=0.6pt] (21+0.08,1+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!49, rounded corners=0.6pt] (21+0.08,2+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!75, rounded corners=0.6pt] (21+0.08,3+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!70, rounded corners=0.6pt] (21+0.08,4+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!61, rounded corners=0.6pt] (21+0.08,5+0.08) rectangle ++(0.84,0.84);
+\fill[gray!15, rounded corners=0.6pt] (21+0.08,6+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!55, rounded corners=0.6pt] (22+0.08,0+0.08) rectangle ++(0.84,0.84);
+\fill[red!80!black!46, rounded corners=0.6pt] (22+0.08,1+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!40, rounded corners=0.6pt] (22+0.08,2+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!50, rounded corners=0.6pt] (22+0.08,3+0.08) rectangle ++(0.84,0.84);
+\fill[gray!15, rounded corners=0.6pt] (22+0.08,4+0.08) rectangle ++(0.84,0.84);
+\fill[gray!15, rounded corners=0.6pt] (22+0.08,5+0.08) rectangle ++(0.84,0.84);
+\fill[green!50!black!72, rounded corners=0.6pt] (22+0.08,6+0.08) rectangle ++(0.84,0.84);
+\node[font=\small\bfseries] at (19.5,8) {What it learned};
+\node[font=\scriptsize] at (19.5,-1) {mostly noise, loose patterns};
+\end{tikzpicture}
+\par}
+\end{keeptogether}
+
+The network found parameters that work, just not the edges $\to$ loops $\to$ digit steps we hoped each layer would learn: each neuron's weights look like noise alone, but together they still separate the digits. Since it was only trained on digits, it even labels pure random noise as a digit.
