@@ -342,7 +342,7 @@ So far, this is only how one training example wants to nudge the weights and bia
 \draw[-stealth, thick] (lab.south) -- (11.3,0.3);
 \end{tikzpicture}
 \par}
-Stacked into one column, the averaged nudges are the gradient descent step $-\eta\,\nabla E$:
+Stacked into one column, the averaged nudges are proportional to the negative gradient $-\nabla E$:
 \[
 -\eta\,\nabla E(w_0, w_1, \dots, w_{13{,}001}) \;=\;
 \begin{bmatrix} \textcolor{red!80!black}{-0.08} \\ \textcolor{blue!70!black}{+0.12} \\ \textcolor{red!80!black}{-0.06} \\ \vdots \\ \textcolor{blue!70!black}{+0.04} \end{bmatrix}
@@ -352,9 +352,9 @@ Stacked into one column, the averaged nudges are the gradient descent step $-\et
 
 \subsection*{Mini-Batch Stochastic Gradient Descent}
 \begin{keeptogether}
-Running backprop on every training example for every single step is slow. In practice:
+Running backprop on every training example for every single step is slow. So in practice, we use \textbf{mini-batches}:
 \begin{itemize}
-  \item \textbf{Split:} shuffle the training data and split it into \textbf{mini-batches} (e.g.\ 100 examples each).
+  \item \textbf{Split:} shuffle the training data and split it into \textbf{mini-batches} (e.g.\ 100 samples per batch).
   \item \textbf{Step:} compute each step from one mini-batch instead of all the data.
 \end{itemize}
 
