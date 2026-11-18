@@ -16,13 +16,12 @@ It's easy for your brain to recognize a low-resolution 3 as a 3 without effort, 
 
 \subsection*{Running Example: Reading Handwritten Digits}
 \begin{keeptogether}
-Input: a $28 \times 28$ grayscale image $\mathbf{x}$. Output: which of $K = 10$ classes (digits 0--9) it is.
+The network takes in a $28 \times 28$ grayscale image $\mathbf{x}$ and outputs which of the $K = 10$ digits (0--9) it shows.
 \begin{itemize}
   \item A \textbf{neuron} (or \textbf{unit}) holds one number, its \textbf{activation} $h$. Here it's between 0 and 1.
-  \item \textbf{Input layer:} one unit per pixel, so $\mathbf{x} \in \mathbb{R}^{D}$ with $D = 28 \times 28 = 784$. Each $x_d$ is pixel $d$'s brightness: 0 = black, 1 = white.
+  \item \textbf{Input layer:} one unit per pixel, so $\mathbf{x} \in \mathbb{R}^{D}$ with $D = 28 \times 28 = 784$.
   \item \textbf{Output layer:} $K = 10$ units, one per class. Unit $k$'s activation $\hat{y}_k$ is how strongly the network thinks the image is digit $k$. The prediction is the $k$ with the largest $\hat{y}_k$.
   \item \textbf{Hidden layers:} two layers of 16 units in between, $\mathbf{h}^{(1)}$ and $\mathbf{h}^{(2)}$ (16 is an arbitrary choice).
-  \item \textbf{Fully connected, feed-forward:} every unit gets input from every unit in the layer before it, so each layer's activations are computed from the previous layer's. Computing $\mathbf{x} \to \mathbf{h}^{(1)} \to \mathbf{h}^{(2)} \to \hat{\mathbf{y}}$ is the \textbf{forward pass}.
 \end{itemize}
 
 {\centering
@@ -61,7 +60,7 @@ Input: a $28 \times 28$ grayscale image $\mathbf{x}$. Output: which of $K = 10$ 
 \end{keeptogether}
 
 \begin{keeptogether}
-\textbf{Why layers?} We recognize a 9 as a loop on top plus a line on the right. The hope is that each layer builds bigger parts from the last one's (not guaranteed after training). Same idea elsewhere: speech is sounds $\to$ syllables $\to$ words.
+\textbf{Why layers?} We recognize a 9 as a loop on top plus a line on the right. The hope is that each layer builds bigger parts from the last one's (not guaranteed after training).
 
 {\centering
 \begin{tikzpicture}[x=1cm, y=1cm]
@@ -91,10 +90,8 @@ Input: a $28 \times 28$ grayscale image $\mathbf{x}$. Output: which of $K = 10$ 
 \end{keeptogether}
 
 \subsection*{One Neuron: Weights, Sigmoid, Bias}
-How does one neuron's activation come from the previous layer?
-
 \begin{keeptogether}
-For example, say we want one neuron to detect an edge: light up only when the image has a short horizontal edge in one specific spot (like the middle bar of a 3). Give the neuron one \textbf{weight} per pixel, and draw the weights as a grid in the same layout as the image:
+Say we want one neuron to detect an edge: it lights up only when the image has a short horizontal edge in one specific spot (like the middle bar of a 3). Give the neuron one \textbf{weight} per pixel, and draw the weights as a grid in the same layout as the image:
 \begin{itemize}
   \item \textbf{Green} ($w = +1$): the 5 pixels where the edge should be. A bright pixel here \textbf{adds} to the sum.
   \item \textbf{Red} ($w = -1$): the 10 pixels just above and below. A bright pixel here \textbf{subtracts} from the sum.
