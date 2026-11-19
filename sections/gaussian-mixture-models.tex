@@ -12,3 +12,270 @@
 % [ ] EM never lowers the likelihood; converges to a local optimum
 % [ ] GMM vs. K-means: soft vs. hard assignments
 % ----
+
+\subsection*{The Gaussian}
+\begin{keeptogether}
+A Gaussian (normal distribution) with mean $\mu$ and variance $\sigma^2$ has the familiar bell shape. In $D$ dimensions, the variance becomes a $D \times D$ covariance matrix $\Sigma$:
+\[
+\mathcal{N}(x \mid \mu, \sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}}\, e^{-\frac{(x - \mu)^2}{2\sigma^2}}
+\qquad
+\mathcal{N}(\mathbf{x} \mid \boldsymbol{\mu}, \Sigma) = \frac{1}{(2\pi)^{D/2}|\Sigma|^{1/2}}\, e^{-\frac{1}{2}(\mathbf{x} - \boldsymbol{\mu})^\top \Sigma^{-1} (\mathbf{x} - \boldsymbol{\mu})}
+\]
+From the MLE section, fitting one Gaussian gives $\mu_{\text{ML}}$ = the sample mean and $\sigma^2_{\text{ML}}$ = the average squared distance from it. The examples below are 1D.
+\end{keeptogether}
+
+\subsection*{Why Mixtures?}
+\begin{keeptogether}
+Real data often has several bumps (\textbf{modes}), and one Gaussian cannot fit it. A \textbf{Gaussian mixture model} adds up $K$ Gaussians instead, one per bump. Our running example is $N = 8$ points: $1,\ 2,\ 2.5,\ 3,\ 4.5,\ 6.5,\ 7,\ 8$.
+
+{\centering
+\begin{tikzpicture}
+\begin{axis}[name=one, scale only axis, width=5.2cm, height=2.6cm,
+    xmin=-0.5, xmax=9.5, ymin=-0.045, ymax=0.3, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{One Gaussian}}, title style={yshift=-4pt, text=red!80!black},
+    xlabel={\scriptsize peak at $4.3$, where there is little data}, label style={font=\scriptsize}]
+\addplot[black, thick, domain=-1:10, samples=160] {1*exp(-(x-4.3125)^2/(2*5.8711))/sqrt(2*pi*5.8711)};
+\addplot[only marks, mark=*, blue, mark size=2.2pt] coordinates {(1,-0.02) (2,-0.02) (2.5,-0.02) (3,-0.02) (4.5,-0.02) (6.5,-0.02) (7,-0.02) (8,-0.02)};
+\end{axis}
+\begin{axis}[name=two, at={(one.east)}, anchor=west, xshift=0.6cm, scale only axis, width=5.2cm, height=2.6cm,
+    xmin=-0.5, xmax=9.5, ymin=-0.045, ymax=0.3, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{Mixture of $K = 2$}}, title style={yshift=-4pt, text=green!50!black},
+    xlabel={\scriptsize one bump per cluster}, label style={font=\scriptsize}]
+\addplot[red!80!black, dashed, thick, domain=-1:10, samples=160] {0.503*exp(-(x-2.155)^2/(2*0.624))/sqrt(2*pi*0.624)};
+\addplot[blue, dashed, thick, domain=-1:10, samples=160] {0.497*exp(-(x-6.499)^2/(2*1.692))/sqrt(2*pi*1.692)};
+\addplot[black, thick, domain=-1:10, samples=200] {0.503*exp(-(x-2.155)^2/(2*0.624))/sqrt(2*pi*0.624) + 0.497*exp(-(x-6.499)^2/(2*1.692))/sqrt(2*pi*1.692)};
+\addplot[only marks, mark=*, blue, mark size=2.2pt] coordinates {(1,-0.02) (2,-0.02) (2.5,-0.02) (3,-0.02) (4.5,-0.02) (6.5,-0.02) (7,-0.02) (8,-0.02)};
+\end{axis}
+\end{tikzpicture}
+\par}
+{\centering\scriptsize Dashed: each weighted component $\pi_k \mathcal{N}(x \mid \mu_k, \sigma_k^2)$. Solid: their sum $p(x)$.\par}
+\end{keeptogether}
+
+\begin{keeptogether}
+Each component $k$ has its own mean $\mu_k$, variance $\sigma_k^2$, and \textbf{weight} $\pi_k$ (the fraction of the data it explains):
+\[
+p(x) = \sum_{k=1}^{K} \pi_k\, \mathcal{N}(x \mid \mu_k, \sigma_k^2)
+\qquad \sum_{k=1}^{K} \pi_k = 1
+\]
+For the fit above: $\pi = (0.50, 0.50)$, $\mu = (2.16, 6.50)$, $\sigma^2 = (0.62, 1.69)$.
+\end{keeptogether}
+
+\subsection*{The Hidden Cluster Label}
+\begin{keeptogether}
+Each point $x_n$ came from one component, but we don't observe which. We call that component the \textbf{latent} (hidden) variable $z_n \in \{1, \dots, K\}$. The GMM is a \textbf{generative model}: it describes how to produce new data in two steps:
+
+{\centering
+\begin{tikzpicture}[>=latex, box/.style={draw=gray!60, rounded corners=3pt, align=center, font=\small, inner sep=5pt}]
+\node[box] (z) at (0,0) {\textbf{1. Pick a cluster}\\[2pt] $z_n = k$ with probability $\pi_k$};
+\node[box] (x) at (6.2,0) {\textbf{2. Sample the point}\\[2pt] $x_n \sim \mathcal{N}(\mu_{z_n}, \sigma_{z_n}^2)$};
+\draw[->, thick, gray] (z) -- (x);
+\node[font=\scriptsize, green!50!black] at (0,-1.0) {e.g.\ $z_n = 2$ (probability 0.50)};
+\node[font=\scriptsize, green!50!black] at (6.2,-1.0) {e.g.\ $x_n = 7.1$ from $\mathcal{N}(6.50, 1.69)$};
+\end{tikzpicture}
+\par}
+\end{keeptogether}
+
+\begin{keeptogether}
+Fitting runs this backwards: given $x_n$, how likely is each cluster? Bayes' theorem gives the \textbf{responsibility} $\gamma_{nk}$, the probability that cluster $k$ produced point $n$:
+\[
+\gamma_{nk} = p(z_n = k \mid x_n) = \frac{\pi_k\, \mathcal{N}(x_n \mid \mu_k, \sigma_k^2)}{\sum_{j=1}^{K} \pi_j\, \mathcal{N}(x_n \mid \mu_j, \sigma_j^2)}
+\]
+Each point's responsibilities sum to 1, so they act like a \textbf{soft} cluster assignment.
+\end{keeptogether}
+
+\subsection*{Why We Need EM}
+\begin{keeptogether}
+MLE would maximize the log-likelihood, but the log now sits outside a sum:
+\[
+\ln p(\mathcal{D}) = \sum_{n=1}^{N} \ln \underbrace{\sum_{k=1}^{K} \pi_k\, \mathcal{N}(x_n \mid \mu_k, \sigma_k^2)}_{\makebox[0pt]{\scriptsize log of a sum: does not split apart}}
+\]
+Setting the derivative to zero gives $\mu_k = \frac{\sum_n \gamma_{nk} x_n}{\sum_n \gamma_{nk}}$, but $\gamma_{nk}$ itself depends on $\mu_k$, so there is no closed form. The problem is circular:
+\begin{itemize}
+  \item \textbf{Knowing the parameters}, we could compute the responsibilities.
+  \item \textbf{Knowing the responsibilities}, we could compute the parameters.
+\end{itemize}
+The \textbf{expectation-maximization (EM)} algorithm breaks the circle by alternating between the two, the same way K-means alternates between assignments and centers.
+\end{keeptogether}
+
+\subsection*{The EM Algorithm}
+\begin{keeptogether}
+\textbf{Step 0: Initialize.} Pick starting parameters. Here: $\pi = (0.5, 0.5)$, $\mu = (1, 5.5)$, $\sigma^2 = (1, 1)$. In practice, K-means centers are a common starting point.
+
+{\centering
+\begin{tikzpicture}
+\begin{axis}[scale only axis, width=10.9cm, height=2.4cm,
+    xmin=-0.5, xmax=9.5, ymin=-0.045, ymax=0.3, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xtick={1,2,2.5,3,4.5,6.5,7,8}, xticklabel style={font=\tiny}, yticklabels={},
+    xlabel={\scriptsize $x$ (points not yet assigned)}, label style={font=\scriptsize}]
+\addplot[red!80!black, dashed, thick, domain=-1:10, samples=160] {0.5*exp(-(x-1)^2/(2*1))/sqrt(2*pi*1)};
+\addplot[blue, dashed, thick, domain=-1:10, samples=160] {0.5*exp(-(x-5.5)^2/(2*1))/sqrt(2*pi*1)};
+\addplot[black, thick, domain=-1:10, samples=200] {0.5*exp(-(x-1)^2/(2*1))/sqrt(2*pi*1) + 0.5*exp(-(x-5.5)^2/(2*1))/sqrt(2*pi*1)};
+\addplot[only marks, mark=*, gray, mark size=2.2pt] coordinates {(1,-0.02) (2,-0.02) (2.5,-0.02) (3,-0.02) (4.5,-0.02) (6.5,-0.02) (7,-0.02) (8,-0.02)};
+\end{axis}
+\end{tikzpicture}
+\par}
+\end{keeptogether}
+
+\begin{keeptogether}
+\textbf{Step 1 (E-step): Compute the responsibilities.} Hold the parameters fixed and compute $\gamma_{nk}$ for every point. For $x = 3$:
+\[
+\gamma_{n1} = \frac{0.5\,\mathcal{N}(3 \mid 1, 1)}{0.5\,\mathcal{N}(3 \mid 1, 1) + 0.5\,\mathcal{N}(3 \mid 5.5, 1)} = \frac{0.5(0.054)}{0.5(0.054) + 0.5(0.018)} = 0.76
+\]
+So $x = 3$ is 76\% cluster 1 and 24\% cluster 2. Coloring each point by its responsibilities:
+
+{\centering
+\begin{tikzpicture}
+\begin{axis}[scale only axis, width=10.9cm, height=2.4cm,
+    xmin=-0.5, xmax=9.5, ymin=-0.045, ymax=0.3, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xtick={1,2,2.5,3,4.5,6.5,7,8}, xticklabel style={font=\tiny}, yticklabels={},
+    xlabel={\scriptsize $\gamma_{n1}$: $1.00,\ 1.00,\ 0.97,\ 0.76,\ 0.00,\ 0.00,\ 0.00,\ 0.00$ \quad (red = cluster 1, blue = cluster 2, purple = in between)}, label style={font=\scriptsize}]
+\addplot[red!80!black, dashed, thick, domain=-1:10, samples=160] {0.5*exp(-(x-1)^2/(2*1))/sqrt(2*pi*1)};
+\addplot[blue, dashed, thick, domain=-1:10, samples=160] {0.5*exp(-(x-5.5)^2/(2*1))/sqrt(2*pi*1)};
+\addplot[black, thick, domain=-1:10, samples=200] {0.5*exp(-(x-1)^2/(2*1))/sqrt(2*pi*1) + 0.5*exp(-(x-5.5)^2/(2*1))/sqrt(2*pi*1)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!100!blue] coordinates {(1,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!100!blue] coordinates {(2,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!97!blue] coordinates {(2.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!75!blue] coordinates {(3,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(4.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(6.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(7,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(8,-0.02)};
+\node[font=\scriptsize, red!50!blue, anchor=south] at (axis cs:3,0.1) {76\% / 24\%};
+\end{axis}
+\end{tikzpicture}
+\par}
+\end{keeptogether}
+
+\begin{keeptogether}
+\textbf{Step 2 (M-step): Update the parameters.} Hold the responsibilities fixed and refit each Gaussian, counting each point by its responsibility. These are the single-Gaussian MLE formulas, weighted by $\gamma_{nk}$:
+\[
+N_k = \sum_{n} \gamma_{nk} \qquad \pi_k = \frac{N_k}{N} \qquad \mu_k = \frac{1}{N_k}\sum_{n} \gamma_{nk}\, x_n \qquad \sigma_k^2 = \frac{1}{N_k}\sum_{n} \gamma_{nk}\,(x_n - \mu_k)^2
+\]
+$N_k$ is the ``effective'' number of points in cluster $k$. For cluster 1: $N_1 = 3.72$, so $\pi_1 = \tfrac{3.72}{8} = 0.47$, $\mu_1 = 2.07$, and $\sigma_1^2 = 0.54$. Both Gaussians move onto their clusters:
+
+{\centering
+\begin{tikzpicture}
+\begin{axis}[scale only axis, width=10.9cm, height=2.4cm,
+    xmin=-0.5, xmax=9.5, ymin=-0.045, ymax=0.3, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xtick={1,2,2.5,3,4.5,6.5,7,8}, xticklabel style={font=\tiny}, yticklabels={},
+    xlabel={\scriptsize $\mu = (2.07,\ 6.27)$, $\sigma^2 = (0.54,\ 2.30)$, $\pi = (0.47,\ 0.53)$}, label style={font=\scriptsize}]
+\addplot[red!80!black, dashed, thick, domain=-1:10, samples=160] {0.465*exp(-(x-2.066)^2/(2*0.538))/sqrt(2*pi*0.538)};
+\addplot[blue, dashed, thick, domain=-1:10, samples=160] {0.535*exp(-(x-6.266)^2/(2*2.304))/sqrt(2*pi*2.304)};
+\addplot[black, thick, domain=-1:10, samples=200] {0.465*exp(-(x-2.066)^2/(2*0.538))/sqrt(2*pi*0.538) + 0.535*exp(-(x-6.266)^2/(2*2.304))/sqrt(2*pi*2.304)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!100!blue] coordinates {(1,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!100!blue] coordinates {(2,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!97!blue] coordinates {(2.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!75!blue] coordinates {(3,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(4.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(6.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(7,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(8,-0.02)};
+\end{axis}
+\end{tikzpicture}
+\par}
+\end{keeptogether}
+
+\begin{keeptogether}
+\textbf{Step 3: Repeat} Steps 1 and 2 until the parameters stop changing. Our example settles after about 10 rounds:
+
+{\centering
+\begin{tikzpicture}
+\begin{axis}[name=fin, scale only axis, width=5.2cm, height=2.6cm,
+    xmin=-0.5, xmax=9.5, ymin=-0.045, ymax=0.3, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{Converged}}, title style={yshift=-4pt},
+    xlabel={\scriptsize $\mu = (2.16,\ 6.50)$, $\sigma^2 = (0.62,\ 1.69)$}, label style={font=\scriptsize}]
+\addplot[red!80!black, dashed, thick, domain=-1:10, samples=160] {0.503*exp(-(x-2.155)^2/(2*0.624))/sqrt(2*pi*0.624)};
+\addplot[blue, dashed, thick, domain=-1:10, samples=160] {0.497*exp(-(x-6.499)^2/(2*1.692))/sqrt(2*pi*1.692)};
+\addplot[black, thick, domain=-1:10, samples=200] {0.503*exp(-(x-2.155)^2/(2*0.624))/sqrt(2*pi*0.624) + 0.497*exp(-(x-6.499)^2/(2*1.692))/sqrt(2*pi*1.692)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!100!blue] coordinates {(1,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!100!blue] coordinates {(2,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!99!blue] coordinates {(2.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!97!blue] coordinates {(3,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!6!blue] coordinates {(4.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(6.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(7,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(8,-0.02)};
+\end{axis}
+\begin{axis}[name=ll, at={(fin.east)}, anchor=west, xshift=0.9cm, scale only axis, width=5.2cm, height=2.6cm,
+    xmin=-0.3, xmax=8.3, ymin=-22.5, ymax=-15.5, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xtick={0,1,2,3,4,5,6,7,8}, ytick={-21.45,-16.58}, ticklabel style={font=\tiny},
+    title={\small\textbf{Log-likelihood}}, title style={yshift=-4pt},
+    xlabel={\scriptsize EM round (never goes down)}, label style={font=\scriptsize}]
+\addplot[thick, blue, mark=*, mark size=1.5pt] coordinates {(0,-21.45) (1,-16.67) (2,-16.62) (3,-16.59) (4,-16.59) (5,-16.58) (6,-16.58) (7,-16.58) (8,-16.58)};
+\end{axis}
+\end{tikzpicture}
+\par}
+{\centering\scriptsize The point at 4.5 ends up 94\% cluster 2: mostly blue, but not fully.\par}
+\end{keeptogether}
+
+\subsection*{Convergence and Pitfalls}
+\begin{keeptogether}
+Each EM round \textbf{never lowers the likelihood}, so the algorithm always converges. Like K-means, it has limits:
+\begin{itemize}
+  \item \textbf{Local optimum:} EM finds a local maximum, so different starting points can give different answers. Starting from K-means centers is standard.
+  \item \textbf{Variance collapse:} if one Gaussian shrinks onto a single point, $\sigma_k^2 \to 0$ and the likelihood goes to $\infty$. Implementations add a small minimum variance to prevent this.
+\end{itemize}
+\end{keeptogether}
+
+\subsection*{GMM vs.\ K-Means}
+\begin{keeptogether}
+K-means is the ``hard'' version of a GMM. With the same starting centers (1 and 5.5), K-means gives $x = 3$ fully to cluster 1, while the GMM splits it 76\% / 24\%:
+
+{\centering
+\begin{tikzpicture}
+\begin{axis}[name=km, scale only axis, width=5.2cm, height=2.6cm,
+    xmin=-0.5, xmax=9.5, ymin=-0.045, ymax=0.3, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{K-means: hard}}, title style={yshift=-4pt},
+    xlabel={\scriptsize each point gets one color}, label style={font=\scriptsize}]
+\addplot[red!80!black, dashed, thick, domain=-1:10, samples=160] {0.5*exp(-(x-1)^2/(2*1))/sqrt(2*pi*1)};
+\addplot[blue, dashed, thick, domain=-1:10, samples=160] {0.5*exp(-(x-5.5)^2/(2*1))/sqrt(2*pi*1)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!100!blue] coordinates {(1,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!100!blue] coordinates {(2,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!100!blue] coordinates {(2.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!100!blue] coordinates {(3,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(4.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(6.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(7,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(8,-0.02)};
+\end{axis}
+\begin{axis}[name=gm, at={(km.east)}, anchor=west, xshift=0.6cm, scale only axis, width=5.2cm, height=2.6cm,
+    xmin=-0.5, xmax=9.5, ymin=-0.045, ymax=0.3, enlargelimits=false,
+    grid=major, grid style={gray!30}, major tick length=0pt,
+    xticklabels={}, yticklabels={},
+    title={\small\textbf{GMM: soft}}, title style={yshift=-4pt},
+    xlabel={\scriptsize $x = 3$ is 76\% red, 24\% blue}, label style={font=\scriptsize}]
+\addplot[red!80!black, dashed, thick, domain=-1:10, samples=160] {0.5*exp(-(x-1)^2/(2*1))/sqrt(2*pi*1)};
+\addplot[blue, dashed, thick, domain=-1:10, samples=160] {0.5*exp(-(x-5.5)^2/(2*1))/sqrt(2*pi*1)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!100!blue] coordinates {(1,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!100!blue] coordinates {(2,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!97!blue] coordinates {(2.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!75!blue] coordinates {(3,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(4.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(6.5,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(7,-0.02)};
+\addplot[only marks, mark=*, mark size=2.2pt, color=red!0!blue] coordinates {(8,-0.02)};
+\end{axis}
+\end{tikzpicture}
+\par}
+\end{keeptogether}
+
+\begin{keeptogether}
+The two algorithms line up step for step:
+\begin{itemize}
+  \item \textbf{Assignments:} K-means picks the nearest center; the GMM computes responsibilities $\gamma_{nk}$.
+  \item \textbf{Updates:} K-means moves each center to the mean of its points; the GMM refits $\mu_k$, $\sigma_k^2$ and $\pi_k$ with weighted averages.
+  \item \textbf{Cluster shape:} K-means clusters have no width or weight; each GMM cluster has its own variance and weight.
+\end{itemize}
+\end{keeptogether}
