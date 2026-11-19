@@ -34,7 +34,7 @@ MAP picks the peak of the posterior. The denominator $p(\mathcal{D})$ does not d
 \[
 \theta_{\text{MAP}} = \arg\max_{\theta}\; p(\mathcal{D} \mid \theta)\, p(\theta) = \arg\max_{\theta} \big[\underbrace{\ln p(\mathcal{D} \mid \theta)}_{\makebox[0pt]{\scriptsize same as MLE}} + \underbrace{\ln p(\theta)}_{\makebox[0pt]{\scriptsize prior}}\big]
 \]
-\textbf{Big idea:} MAP is MLE with one extra term, $\ln p(\theta)$, that pulls the estimate toward what the prior believes. For the two-heads coin:
+\textbf{Big idea:} MAP is MLE with one extra term, $\ln p(\theta)$, that pulls the estimate toward what the prior believes. For a coin with 3 heads in 4 flips and a prior that it is probably fair:
 
 {\centering
 \begin{tikzpicture}
@@ -49,29 +49,31 @@ MAP picks the peak of the posterior. The denominator $p(\mathcal{D})$ does not d
 \end{axis}
 \node[font=\Large, gray, xshift=0.45cm] at (pr.east) {$\times$};
 \begin{axis}[name=lk, at={(pr.east)}, anchor=west, xshift=0.9cm, scale only axis, width=3.4cm, height=2.6cm,
-    xmin=0, xmax=1, ymin=0, ymax=1.15, enlargelimits=false,
+    xmin=0, xmax=1, ymin=0, ymax=2.5, enlargelimits=false,
     grid=major, grid style={gray!30}, major tick length=0pt,
     xticklabels={}, yticklabels={},
-    title={\small\textbf{Likelihood $\theta^2$}}, title style={yshift=-4pt},
-    xlabel={\scriptsize MLE: $\theta = 1$}, label style={font=\scriptsize}]
-\addplot[thick, blue, domain=0:1, samples=80] {x^2};
-\addplot[only marks, mark=*, red!80!black, mark size=2pt] coordinates {(1,1)};
+    title={\small\textbf{Likelihood $\theta^3(1-\theta)$}}, title style={yshift=-4pt},
+    xlabel={\scriptsize MLE: $\theta = 0.75$}, label style={font=\scriptsize}]
+\addplot[thick, blue, domain=0:1, samples=120] {20*x^3*(1-x)};
+\addplot[only marks, mark=*, red!80!black, mark size=2pt] coordinates {(0.75,2.109)};
 \end{axis}
 \node[font=\Large, gray, xshift=0.45cm] at (lk.east) {$\propto$};
 \begin{axis}[name=po, at={(lk.east)}, anchor=west, xshift=0.9cm, scale only axis, width=3.4cm, height=2.6cm,
-    xmin=0, xmax=1, ymin=0, ymax=2.4, enlargelimits=false,
+    xmin=0, xmax=1, ymin=0, ymax=2.7, enlargelimits=false,
     grid=major, grid style={gray!30}, major tick length=0pt,
     xticklabels={}, yticklabels={},
     title={\small\textbf{Posterior}}, title style={yshift=-4pt},
-    xlabel={\scriptsize MAP: $\theta = 0.75$}, label style={font=\scriptsize}]
-\addplot[thick, blue, domain=0:1, samples=80] {20*x^3*(1-x)};
-\addplot[orange, dashed, thick] coordinates {(0.75,0) (0.75,2.109)};
-\addplot[only marks, mark=*, green!50!black, mark size=2pt] coordinates {(0.75,2.109)};
+    xlabel={\scriptsize MAP: $\theta = 0.667$}, label style={font=\scriptsize}]
+\addplot[thick, blue, domain=0:1, samples=120] {105*x^4*(1-x)^2};
+\addplot[gray, dashed] coordinates {(0.75,0) (0.75,2.7)};
+\addplot[orange, dashed, thick] coordinates {(0.667,0) (0.667,2.305)};
+\addplot[only marks, mark=*, green!50!black, mark size=2pt] coordinates {(0.667,2.305)};
 \end{axis}
 \end{tikzpicture}
 \par}
-{\centering\scriptsize The prior pulls the estimate from $\theta = 1$ back toward $0.5$.\par}
+{\centering\scriptsize The prior pulls the estimate from the MLE $0.75$ (gray dashed) toward $0.5$, to $0.667$.\par}
 \end{keeptogether}
+
 
 \subsection*{Choosing a Prior: the Beta Distribution}
 \begin{keeptogether}
@@ -189,7 +191,7 @@ The shape of the prior decides the penalty. A Laplace prior has a sharp peak at 
     grid=major, grid style={gray!30}, major tick length=0pt,
     xticklabels={}, yticklabels={},
     title={\small\textbf{Gaussian prior on $w_j$}}, title style={yshift=-4pt},
-    xlabel={\scriptsize $w_j$ (centered at 0) $\Rightarrow$ ridge ($L_2$)}, label style={font=\scriptsize}]
+    xlabel={\scriptsize $w_j$ (center   ed at 0) $\Rightarrow$ ridge ($L_2$)}, label style={font=\scriptsize}]
 \addplot[thick, blue, domain=-4:4, samples=120] {exp(-x^2/2)/sqrt(2*pi)};
 \addplot[gray, dashed] coordinates {(0,0) (0,0.55)};
 \end{axis}
