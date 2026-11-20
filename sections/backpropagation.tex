@@ -1,15 +1,4 @@
-% ===== backpropagation =====
 \section*{Backpropagation}
-% ---- CS189 scope checklist: must include ([x] = already covered) ----
-% Source: Lecture 13; Discussion 7; reference sheet p.8
-% [x] Why: SGD needs the gradient of the loss for every weight
-% [ ] Computation graph (forward pass computes the values)
-% [x] Chain rule along one path; sum over multiple paths
-% [ ] Backward pass: adjoint a_L = 1, a_i = sum over children a_j dv_j/dv_i
-% [ ] Process nodes in reverse topological order
-% [ ] Matrix rules: C = AB -> G B^T, A^T G; elementwise; bias = G summed over rows
-% [ ] Worked example, e.g. f(x, y, z) = (x + y) z
-% ----
 
 % draws a vertical nudge arrow: \nudge{x}{y}{signed size}{scale}{line width}
 % blue up = increase, red down = decrease, nothing if 0

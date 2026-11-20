@@ -1,13 +1,4 @@
-% ===== map =====
 \section*{Maximum a Posteriori (MAP)}
-% ---- CS189 scope checklist: must include ([x] = already covered) ----
-% Source: Lectures 5, 7; reference sheet pp.3-4
-% [ ] Bayes' theorem: posterior is proportional to likelihood x prior; p(D) drops out
-% [ ] MAP = argmax [ sum ln p(t_n | x_n, w) + ln p(w) ]
-% [ ] Coin with a Beta(a, b) prior: mu_MAP = (n_1 + a - 1) / (N + a + b - 2)
-% [ ] Small N: the prior wins; large N: MAP -> MLE
-% [ ] The prior acts as a regularizer (Gaussian prior -> ridge, Laplace prior -> lasso)
-% ----
 
 \subsection*{Why MAP?}
 MLE uses only the data, so a small sample gives overconfident estimates. For example, flip a coin twice and get two heads: $\theta_{\text{ML}} = \tfrac{2}{2} = 1$, so the model says tails can never happen.
@@ -39,35 +30,35 @@ MAP picks the peak of the posterior. The denominator $p(\mathcal{D})$ does not d
 {\centering
 \begin{tikzpicture}
 \begin{axis}[name=pr, scale only axis, width=3.4cm, height=2.6cm,
-    xmin=0, xmax=1, ymin=0, ymax=1.75, enlargelimits=false,
+    xmin=0, xmax=1, ymin=0, ymax=0.29, enlargelimits=false,
     grid=major, grid style={gray!30}, major tick length=0pt,
     xticklabels={}, yticklabels={},
     title={\small\textbf{Prior $p(\theta)$}}, title style={yshift=-4pt},
     xlabel={\scriptsize probably fair}, label style={font=\scriptsize}]
-\addplot[thick, blue, domain=0:1, samples=80] {6*x*(1-x)};
-\addplot[gray, dashed] coordinates {(0.5,0) (0.5,1.75)};
+\addplot[thick, blue, domain=0:1, samples=80] {x*(1-x)};
+\addplot[gray, dashed] coordinates {(0.5,0) (0.5,0.29)};
 \end{axis}
 \node[font=\Large, gray, xshift=0.45cm] at (pr.east) {$\times$};
 \begin{axis}[name=lk, at={(pr.east)}, anchor=west, xshift=0.9cm, scale only axis, width=3.4cm, height=2.6cm,
-    xmin=0, xmax=1, ymin=0, ymax=2.5, enlargelimits=false,
+    xmin=0, xmax=1, ymin=0, ymax=0.125, enlargelimits=false,
     grid=major, grid style={gray!30}, major tick length=0pt,
     xticklabels={}, yticklabels={},
     title={\small\textbf{Likelihood $\theta^3(1-\theta)$}}, title style={yshift=-4pt},
     xlabel={\scriptsize MLE: $\theta = 0.75$}, label style={font=\scriptsize}]
-\addplot[thick, blue, domain=0:1, samples=120] {20*x^3*(1-x)};
-\addplot[only marks, mark=*, red!80!black, mark size=2pt] coordinates {(0.75,2.109)};
+\addplot[thick, blue, domain=0:1, samples=120] {x^3*(1-x)};
+\addplot[only marks, mark=*, red!80!black, mark size=2pt] coordinates {(0.75,0.1055)};
 \end{axis}
 \node[font=\Large, gray, xshift=0.45cm] at (lk.east) {$\propto$};
 \begin{axis}[name=po, at={(lk.east)}, anchor=west, xshift=0.9cm, scale only axis, width=3.4cm, height=2.6cm,
-    xmin=0, xmax=1, ymin=0, ymax=2.7, enlargelimits=false,
+    xmin=0, xmax=1, ymin=0, ymax=0.026, enlargelimits=false, scaled y ticks=false,
     grid=major, grid style={gray!30}, major tick length=0pt,
     xticklabels={}, yticklabels={},
     title={\small\textbf{Posterior}}, title style={yshift=-4pt},
     xlabel={\scriptsize MAP: $\theta = 0.667$}, label style={font=\scriptsize}]
-\addplot[thick, blue, domain=0:1, samples=120] {105*x^4*(1-x)^2};
-\addplot[gray, dashed] coordinates {(0.75,0) (0.75,2.7)};
-\addplot[orange, dashed, thick] coordinates {(0.667,0) (0.667,2.305)};
-\addplot[only marks, mark=*, green!50!black, mark size=2pt] coordinates {(0.667,2.305)};
+\addplot[thick, blue, domain=0:1, samples=120] {x^4*(1-x)^2};
+\addplot[gray, dashed] coordinates {(0.75,0) (0.75,0.026)};
+\addplot[orange, dashed, thick] coordinates {(0.667,0) (0.667,0.02195)};
+\addplot[only marks, mark=*, green!50!black, mark size=2pt] coordinates {(0.667,0.02195)};
 \end{axis}
 \end{tikzpicture}
 \par}
@@ -77,7 +68,7 @@ MAP picks the peak of the posterior. The denominator $p(\mathcal{D})$ does not d
 
 \subsection*{Choosing a Prior: the Beta Distribution}
 \begin{keeptogether}
-For a probability $\theta \in [0, 1]$, CS189 uses the \textbf{Beta} prior with parameters $a, b > 0$ (the normalizing constant is out of scope):
+A common prior for a probability $\theta \in [0, 1]$ is the \textbf{Beta} distribution, with parameters $a, b > 0$:
 \[
 p(\theta) \;\propto\; \theta^{\,a-1}(1-\theta)^{\,b-1}
 \]
@@ -86,7 +77,7 @@ With $a = b$, the prior is centered at $0.5$, and larger values express a strong
 {\centering
 \begin{tikzpicture}
 \begin{axis}[name=b1, scale only axis, width=3.4cm, height=2.6cm,
-    xmin=0, xmax=1, ymin=0, ymax=3.8, enlargelimits=false,
+    xmin=0, xmax=1, ymin=0, ymax=1.6, enlargelimits=false,
     grid=major, grid style={gray!30}, major tick length=0pt,
     xticklabels={}, yticklabels={},
     title={\small\textbf{$a = b = 1$}}, title style={yshift=-4pt},
@@ -94,20 +85,20 @@ With $a = b$, the prior is centered at $0.5$, and larger values express a strong
 \addplot[thick, blue, domain=0:1, samples=2] {1};
 \end{axis}
 \begin{axis}[name=b2, at={(b1.east)}, anchor=west, xshift=0.45cm, scale only axis, width=3.4cm, height=2.6cm,
-    xmin=0, xmax=1, ymin=0, ymax=3.8, enlargelimits=false,
+    xmin=0, xmax=1, ymin=0, ymax=0.4, enlargelimits=false,
     grid=major, grid style={gray!30}, major tick length=0pt,
     xticklabels={}, yticklabels={},
     title={\small\textbf{$a = b = 2$}}, title style={yshift=-4pt},
     xlabel={\scriptsize mild belief in fair}, label style={font=\scriptsize}]
-\addplot[thick, blue, domain=0:1, samples=80] {6*x*(1-x)};
+\addplot[thick, blue, domain=0:1, samples=80] {x*(1-x)};
 \end{axis}
 \begin{axis}[name=b3, at={(b2.east)}, anchor=west, xshift=0.45cm, scale only axis, width=3.4cm, height=2.6cm,
-    xmin=0, xmax=1, ymin=0, ymax=3.8, enlargelimits=false,
+    xmin=0, xmax=1, ymin=0, ymax=6.1e-6, enlargelimits=false, scaled y ticks=false,
     grid=major, grid style={gray!30}, major tick length=0pt,
     xticklabels={}, yticklabels={},
     title={\small\textbf{$a = b = 10$}}, title style={yshift=-4pt},
     xlabel={\scriptsize strong belief in fair}, label style={font=\scriptsize}]
-\addplot[thick, blue, domain=0:1, samples=120] {923780*x^9*(1-x)^9};
+\addplot[thick, blue, domain=0:1, samples=120] {x^9*(1-x)^9};
 \end{axis}
 \end{tikzpicture}
 \par}
@@ -187,22 +178,22 @@ The shape of the prior decides the penalty. A Laplace prior has a sharp peak at 
 {\centering
 \begin{tikzpicture}
 \begin{axis}[name=g, scale only axis, width=5.2cm, height=3cm,
-    xmin=-4, xmax=4, ymin=0, ymax=0.55, enlargelimits=false,
+    xmin=-4, xmax=4, ymin=0, ymax=1.1, enlargelimits=false,
     grid=major, grid style={gray!30}, major tick length=0pt,
     xticklabels={}, yticklabels={},
     title={\small\textbf{Gaussian prior on $w_j$}}, title style={yshift=-4pt},
     xlabel={\scriptsize $w_j$ (center   ed at 0) $\Rightarrow$ ridge ($L_2$)}, label style={font=\scriptsize}]
-\addplot[thick, blue, domain=-4:4, samples=120] {exp(-x^2/2)/sqrt(2*pi)};
-\addplot[gray, dashed] coordinates {(0,0) (0,0.55)};
+\addplot[thick, blue, domain=-4:4, samples=120] {exp(-x^2/2)};
+\addplot[gray, dashed] coordinates {(0,0) (0,1.1)};
 \end{axis}
 \begin{axis}[name=l, at={(g.east)}, anchor=west, xshift=0.6cm, scale only axis, width=5.2cm, height=3cm,
-    xmin=-4, xmax=4, ymin=0, ymax=0.55, enlargelimits=false,
+    xmin=-4, xmax=4, ymin=0, ymax=1.1, enlargelimits=false,
     grid=major, grid style={gray!30}, major tick length=0pt,
     xticklabels={}, yticklabels={},
     title={\small\textbf{Laplace prior on $w_j$}}, title style={yshift=-4pt},
     xlabel={\scriptsize $w_j$ (sharp peak at 0) $\Rightarrow$ lasso ($L_1$)}, label style={font=\scriptsize}]
-\addplot[thick, blue, domain=-4:4, samples=161] {0.5*exp(-abs(x))};
-\addplot[gray, dashed] coordinates {(0,0) (0,0.55)};
+\addplot[thick, blue, domain=-4:4, samples=161] {exp(-abs(x))};
+\addplot[gray, dashed] coordinates {(0,0) (0,1.1)};
 \end{axis}
 \end{tikzpicture}
 \par}

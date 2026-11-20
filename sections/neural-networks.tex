@@ -1,15 +1,4 @@
-% ===== neural-networks =====
 \section*{Neural Networks}
-% ---- CS189 scope checklist: must include ([x] = already covered) ----
-% Source: Lecture 12; reference sheet p.8
-% [ ] Linear models fail on XOR (fixed basis functions)
-% [ ] Neuron = weighted sum + activation; perceptron (step activation)   (weighted sum + sigmoid done; perceptron not yet)
-% [ ] XOR with two layers: hidden units are learned features
-% [x] Fully connected layer z = W h + b, h = phi(z); parameter count D_out(D_in + 1)
-% [ ] Without nonlinear activations, stacked layers collapse into one linear model
-% [ ] Activations and derivatives: sigmoid (max slope 1/4), tanh, ReLU   (sigmoid shape only)
-% [ ] Output layer + loss: identity + MSE, sigmoid + cross-entropy, softmax + cross-entropy
-% ----
 
 \subsection*{Why Neural Networks?}
 It's easy for your brain to recognize a low-resolution 3 as a 3 without effort, even though no two 3's have the same pixels. But try writing a program that takes in a $28 \times 28$ grid of pixels and outputs the digit, and it suddenly becomes very hard. A neural network gets around this by learning from examples.
